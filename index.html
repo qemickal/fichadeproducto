@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ficha de Producto</title>
+<meta name="description" content="Captura fichas de producto con variantes, materiales, costos y proveedores; guárdalas y expórtalas a PDF. Funciona sin internet.">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ficha">
+<style>
+:root{
+  --bg:#eef1f6; --card:#ffffff; --ink:#111827; --mut:#5b6577; --line:#dde4ee;
+  --acc:#4f46e5; --accd:#4338ca; --soft:#eef2ff; --err:#dc2626;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; padding-bottom:96px;
+}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* ---------- Header ---------- */
+header.top{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;padding:20px 0 24px;margin-bottom:18px}
+.trow{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+h1{font-size:19px;margin:0;font-weight:750;letter-spacing:.01em}
+.sub{font-size:12.5px;color:#dfe2ff;margin-top:2px}
+.pill{
+  background:#fff;color:var(--acc);border:none;border-radius:999px;
+  padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;
+  display:flex;gap:6px;align-items:center;flex:none;
+}
+.pill:active{transform:scale(.97)}
+#btnFichas{margin-left:auto}
+#btnInstalar{padding:9px 14px}
+.badge{background:var(--acc);color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px;min-width:22px;text-align:center}
+@media (max-width:430px){
+  .pill .hlbl{display:none}
+  h1{font-size:17px}
+  .sub{font-size:11.5px}
+}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.card h2{margin:0 0 4px;font-size:15px;font-weight:750;display:flex;align-items:center;gap:8px}
+.card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--acc);flex:none}
+.hint{font-size:12.5px;color:var(--mut);margin:0 0 12px}
+
+/* ---------- Inputs ---------- */
+label.fl{display:block;font-size:11.5px;font-weight:750;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
+input[type=text],input[type=number],textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;
+  font:inherit;font-size:14.5px;background:#fff;color:var(--ink);outline:none;
+  transition:border-color .15s, box-shadow .15s;min-height:44px;
+}
+input[type=text]:focus,input[type=number]:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+input::placeholder,textarea::placeholder{color:#9aa4b8}
+textarea{min-height:84px;resize:vertical}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* ---------- Segmented ---------- */
+.seg{display:flex;background:#e9edf5;border-radius:12px;padding:4px;gap:4px}
+.seg .opt{flex:1;position:relative}
+.seg .opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg .opt span{display:block;text-align:center;padding:9px 6px;border-radius:9px;font-size:13.5px;font-weight:650;color:#4b5568;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+.seg .opt input:checked+span{background:var(--acc);color:#fff;box-shadow:0 1px 3px rgba(67,56,202,.4)}
+.seg.mini{background:#eef1f7;border-radius:10px;padding:3px;gap:3px}
+.seg.mini .opt span{padding:7px 12px;font-size:12.5px;border-radius:8px}
+
+/* ---------- Checkbox disponible ---------- */
+.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:#f6f8fc;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;position:relative}
+.chk input{position:absolute;opacity:0;pointer-events:none}
+.chk .box{width:20px;height:20px;border-radius:6px;border:1.5px solid #b9c3d6;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s;flex:none}
+.chk .box svg{opacity:0;transition:opacity .15s}
+.chk input:checked~.box{background:var(--acc);border-color:var(--acc)}
+.chk input:checked~.box svg{opacity:1}
+.chk .lbl{font-size:13px;font-weight:650;color:#4b5568}
+.chk input:checked~.lbl{color:var(--accd)}
+
+/* ---------- Filas de variantes ---------- */
+.vrow{display:grid;grid-template-columns:1fr 92px 38px;gap:8px;margin-bottom:8px}
+
+/* ---------- Filas de materiales ---------- */
+.mrow{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:#fbfcfe}
+.mline{display:grid;grid-template-columns:1fr 38px;gap:8px}
+.mopts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.mopts .m-proveedor{flex:1;min-width:170px;min-height:38px;padding:8px 10px;font-size:13.5px}
+.cost{display:flex;align-items:center;gap:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;min-height:38px;transition:border-color .15s, box-shadow .15s}
+.cost:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+.cost span{color:var(--mut);font-weight:750;font-size:13.5px}
+.cost input{border:none;box-shadow:none;padding:8px 2px;min-height:30px;width:76px;font-size:13.5px;font-weight:650}
+.cost input:focus{border:none;box-shadow:none}
+
+.del{width:38px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:#8b95a9;display:grid;place-items:center;cursor:pointer;transition:all .15s;padding:0}
+.del:hover{border-color:#fca5a5;color:var(--err);background:#fef2f2}
+
+.addbtn{width:100%;border:1.5px dashed #c3cbe0;background:transparent;color:var(--acc);border-radius:12px;padding:11px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.addbtn:hover{background:var(--soft);border-color:var(--acc)}
+
+.totalbar{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border:1px solid #dfe4ff;border-radius:12px;padding:12px 14px;margin-top:12px}
+.totalbar .tl{font-size:13px;font-weight:750;color:var(--accd)}
+.totalbar .tv{font-size:20px;font-weight:800;color:var(--accd);font-variant-numeric:tabular-nums}
+.totalbar .tv small{font-size:12px;font-weight:650}
+
+/* ---------- Barra de acciones ---------- */
+.actions{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:40}
+.actions .inner{max-width:780px;margin:0 auto;display:flex;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:12px;padding:13px 12px;font:inherit;font-size:14.5px;font-weight:750;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--acc);color:#fff;flex:1.5}
+.btn.primary:hover{background:var(--accd)}
+.btn.soft{background:var(--soft);color:var(--accd);flex:1}
+.btn.soft:hover{background:#e2e8ff}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:#4b5568;flex:0 0 auto}
+.btn.ghost:hover{border-color:#b9c3d6}
+.btn.ghost.warn{border-color:var(--err);color:var(--err);background:#fef2f2}
+.btn.iconbtn{flex:0 0 50px;padding:12px 0}
+.btn.mini{padding:8px 12px;font-size:12.5px;border-radius:10px;flex:none}
+.lbl-short{display:none}
+@media (max-width:420px){
+  .btn{font-size:13px;padding:12px 8px}
+  .btn.primary{flex:1.4}
+  .lbl-long{display:none}
+  .lbl-short{display:inline}
+}
+
+/* ---------- Overlays ---------- */
+.overlay{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;z-index:60;padding:14px}
+.overlay.open{display:grid;place-items:center}
+.sheet{background:#fff;border-radius:16px;width:min(780px,100%);height:min(90vh,920px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.sheet.listas{height:min(84vh,760px)}
+.shead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.shead .st{font-weight:750;font-size:14px;margin-right:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shead .btn{text-decoration:none}
+.x{width:36px;height:36px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:#4b5568;display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
+.x:hover{border-color:#b9c3d6}
+.sheet iframe{flex:1;border:0;width:100%;background:#525659}
+.flist{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.fitem{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;flex-wrap:wrap}
+.finfo{min-width:180px;flex:1}
+.fname{font-weight:750;font-size:14.5px;word-break:break-word}
+.fmeta{font-size:12px;color:var(--mut);margin-top:3px}
+.facts{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
+.fbt{border:none;background:var(--soft);color:var(--accd);border-radius:9px;padding:8px 12px;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer}
+.fbt.alt{background:#f6f8fc;border:1.5px solid var(--line);color:#4b5568}
+.fdel{background:#fff;border:1.5px solid var(--line);color:#8b95a9;border-radius:9px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;padding:0}
+.fdel:hover{border-color:#fca5a5;color:var(--err)}
+.fdel.armed{width:auto;padding:0 10px;background:var(--err);border-color:var(--err);color:#fff;font-size:12px;font-weight:750}
+.fempty{padding:44px 12px;text-align:center;color:var(--mut);font-size:13.5px}
+.fempty svg{opacity:.4;margin-bottom:10px}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);background:#111827;color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:650;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--err)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap trow">
+    <div class="logo" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="4" width="14" height="17" rx="2.5"/>
+        <path d="M9 2.5h6v3H9z" fill="#fff" stroke="none"/>
+        <path d="M8.6 10.2l1.2 1.2 2.2-2.4"/><path d="M14.5 10.5h2"/>
+        <path d="M8.6 15.2l1.2 1.2 2.2-2.4"/><path d="M14.5 15.5h2"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Ficha de Producto</h1>
+      <div class="sub">Se guarda automáticamente en este dispositivo</div>
+    </div>
+    <button id="btnFichas" class="pill" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>
+      <span class="hlbl">Mis fichas</span>
+      <span class="badge" id="hdrCount">0</span>
+    </button>
+    <button id="btnInstalar" class="pill" hidden type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+      <span class="hlbl">Instalar app</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ DATOS GENERALES ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Datos generales</h2>
+    <p class="hint">Información principal del producto.</p>
+
+    <label class="fl" for="producto">Producto *</label>
+    <input type="text" id="producto" placeholder="Ej. Tote bordada Primavera" autocomplete="off">
+
+    <label class="fl">Tipo</label>
+    <div class="seg" role="radiogroup" aria-label="Tipo de producto">
+      <label class="opt"><input type="radio" name="tipo" value="individual" checked><span>Individual</span></label>
+      <label class="opt"><input type="radio" name="tipo" value="combo"><span>Combo</span></label>
+      <label class="opt"><input type="radio" name="tipo" value="preventa"><span>Preventa</span></label>
+    </div>
+
+    <label class="fl" for="tiempo">Tiempo estimado</label>
+    <input type="text" id="tiempo" placeholder="Ej. 2 horas por lote de 10 piezas" autocomplete="off">
+  </section>
+
+  <!-- ============ VARIANTES ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Variantes</h2>
+    <p class="hint">Agrega cada variante y sus piezas. El total se calcula solo.</p>
+    <div id="vlist"></div>
+    <button class="addbtn" id="btnAddVar" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Agregar variante
+    </button>
+    <div class="totalbar">
+      <span class="tl">Total de piezas</span>
+      <span class="tv"><span id="totalPiezas">0</span> <small>piezas</small></span>
+    </div>
+  </section>
+
+  <!-- ============ MATERIALES ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Materiales</h2>
+    <p class="hint">Marca si hay disponible, elige taller o externo, asigna proveedor y captura el costo aproximado.</p>
+    <div id="mlist"></div>
+    <button class="addbtn" id="btnAddMat" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Agregar material
+    </button>
+    <div class="totalbar">
+      <span class="tl">Costo de materiales (aprox.)</span>
+      <span class="tv" id="costoMateriales">$0.00</span>
+    </div>
+  </section>
+
+  <!-- ============ NOTAS ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Notas <small style="font-weight:600;color:var(--mut)">(opcional)</small></h2>
+    <label class="fl" for="notas" style="margin-top:2px">Notas</label>
+    <textarea id="notas" placeholder="Ej. El precio incluye IVA. Entrega estimada: 5 días hábiles."></textarea>
+  </section>
+
+</main>
+
+<div class="actions">
+  <div class="inner">
+    <button class="btn ghost" id="btnNueva" type="button">Nueva</button>
+    <button class="btn soft" id="btnGuardar" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      Guardar
+    </button>
+    <button class="btn soft iconbtn" id="btnVer" type="button" aria-label="Ver PDF" title="Ver PDF">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="btn primary" id="btnPdf" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+      <span class="lbl-long">Descargar PDF</span><span class="lbl-short">PDF</span>
+    </button>
+  </div>
+</div>
+
+<datalist id="dl-proveedores"></datalist>
+
+<!-- ============ Modal: vista previa PDF ============ -->
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Vista previa del PDF">
+    <div class="shead">
+      <div class="st" id="mTitle">Vista previa del PDF</div>
+      <a class="btn primary mini" id="mDl" download>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+        Descargar
+      </a>
+      <button class="x" id="mClose" type="button" aria-label="Cerrar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <iframe id="mFrame" title="Vista previa del PDF"></iframe>
+  </div>
+</div>
+
+<!-- ============ Modal: mis fichas ============ -->
+<div class="overlay" id="fOverlay">
+  <div class="sheet listas" role="dialog" aria-modal="true" aria-label="Mis fichas guardadas">
+    <div class="shead">
+      <div class="st" id="fTitle">Mis fichas</div>
+      <button class="btn soft mini" id="btnExpCsv" type="button" title="Exportar todas las fichas a CSV (Excel)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 4v16"/></svg>
+        Excel (CSV)
+      </button>
+      <button class="btn soft mini" id="btnExpPdf" type="button" title="Exportar un PDF con todas las fichas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+        Catálogo PDF
+      </button>
+      <button class="x" id="fClose" type="button" aria-label="Cerrar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="flist" id="fList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<!-- ================================================================
+     GENERADOR DE PDF (puro, sin dependencias ni internet)
+     ================================================================ -->
+<script>
+/*__PDFGEN__*/
+'use strict';
+var WIN_MAP = {0x20AC:128,0x201A:130,0x0192:131,0x201E:132,0x2026:133,0x2020:134,0x2021:135,0x02C6:136,0x2030:137,0x0160:138,0x2039:139,0x0152:140,0x017D:142,0x2018:145,0x2019:146,0x201C:147,0x201D:148,0x2022:149,0x2013:150,0x2014:151,0x02DC:152,0x2122:153,0x0161:154,0x203A:155,0x0153:156,0x017E:158,0x0178:159};
+
+function toWin(s){
+  var out='';
+  s=String(s==null?'':s);
+  for(var i=0;i<s.length;i++){
+    var c=s.codePointAt(i);
+    if(WIN_MAP[c]!=null)out+=String.fromCharCode(WIN_MAP[c]);
+    else if(c<=126||(c>=160&&c<=255))out+=s[i];
+    else out+='?';
+  }
+  return out;
+}
+function esc(s){return toWin(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');}
+
+function charW(c){
+  if(c==='—'||c==='–')return 1.0;
+  if(" ijl.,:;'`|!".indexOf(c)>=0)return .30;
+  if("ftr-()[]{}\"".indexOf(c)>=0)return .40;
+  if("mwMW@%".indexOf(c)>=0)return .88;
+  if(c===' ')return .30;
+  if(c==='Ñ')return .72;
+  if(/[A-HK-NPR-Z]/.test(c))return .72;
+  if(/[0-9]/.test(c))return .60;
+  if(/[IJ]/.test(c))return .38;
+  if(/[a-zñ]/.test(c))return .56;
+  return .62;
+}
+function textW(s,size,bold){
+  var w=0;s=String(s==null?'':s);
+  for(var i=0;i<s.length;i++)w+=charW(s[i]);
+  return w*size*(bold?1.04:1);
+}
+function wrapText(s,size,bold,maxW){
+  var out=[],words=String(s==null?'':s).split(/\s+/).filter(Boolean),cur='';
+  function push(){if(cur){out.push(cur);cur='';}}
+  for(var k=0;k<words.length;k++){
+    var w=words[k],test=cur?cur+' '+w:w;
+    if(textW(test,size,bold)<=maxW){cur=test;continue;}
+    push();
+    while(textW(w,size,bold)>maxW&&w.length>1){
+      var cut=w.length-1;
+      while(cut>1&&textW(w.slice(0,cut),size,bold)>maxW)cut--;
+      out.push(w.slice(0,cut));w=w.slice(cut);
+    }
+    cur=w;
+  }
+  push();
+  return out.length?out:[''];
+}
+function fmtMoney(n){
+  var neg=Number(n)<0?'-':'';
+  n=Math.abs(Number(n)||0);
+  var parts=n.toFixed(2).split('.');
+  var ent=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return neg+'$'+ent+'.'+parts[1];
+}
+
+var PDFC={W:612,H:792,M:46,
+  ACCENT:[0.314,0.275,0.898],
+  DARK:[0.13,0.16,0.22],MUT:[0.39,0.45,0.53],SOFT:[0.60,0.65,0.72],
+  LIGHT:[0.945,0.955,0.975],LINE:[0.84,0.87,0.91],GREEN:[0.05,0.50,0.32]};
+
+function PdfDoc(){this.pages=[];this.runName='';this.addPage();}
+PdfDoc.prototype.addPage=function(){this.pages.push([]);this.y=PDFC.H-PDFC.M;};
+PdfDoc.prototype.op=function(s){this.pages[this.pages.length-1].push(s);};
+PdfDoc.prototype.fmt=function(c){return c[0].toFixed(3)+' '+c[1].toFixed(3)+' '+c[2].toFixed(3);};
+PdfDoc.prototype.text=function(x,y,str,o){
+  o=o||{};var size=o.size||10,font=o.bold?'/F2':'/F1',color=o.color||PDFC.DARK,xx=x;
+  if(o.align==='right')xx=x-textW(str,size,o.bold);
+  else if(o.align==='center')xx=x-textW(str,size,o.bold)/2;
+  this.op('BT '+this.fmt(color)+' rg '+font+' '+size+' Tf 1 0 0 1 '+xx.toFixed(2)+' '+y.toFixed(2)+' Tm ('+esc(str)+') Tj ET');
+};
+PdfDoc.prototype.rect=function(x,y,w,h,fill){this.op(this.fmt(fill)+' rg '+x.toFixed(2)+' '+y.toFixed(2)+' '+w.toFixed(2)+' '+h.toFixed(2)+' re f');};
+PdfDoc.prototype.line=function(x1,y1,x2,y2,color,w){this.op(this.fmt(color)+' RG '+(w||0.7)+' w '+x1.toFixed(2)+' '+y1.toFixed(2)+' m '+x2.toFixed(2)+' '+y2.toFixed(2)+' l S');};
+PdfDoc.prototype.ensure=function(need){
+  if(this.y-need>=74)return false;
+  this.addPage();this.smallHeader();return true;
+};
+PdfDoc.prototype.smallHeader=function(){
+  var t=this.runName;
+  while(textW(t,8.5,true)>250&&t.length>1)t=t.slice(0,-1);
+  if(t!==this.runName)t+='…';
+  this.text(PDFC.M,PDFC.H-34,'FICHA DE PRODUCTO',{size:7.5,bold:true,color:PDFC.SOFT});
+  this.text(PDFC.W-PDFC.M,PDFC.H-34,t,{size:8.5,bold:true,color:PDFC.MUT,align:'right'});
+  this.line(PDFC.M,PDFC.H-42,PDFC.W-PDFC.M,PDFC.H-42,PDFC.LINE,0.8);
+  this.y=PDFC.H-58;
+};
+
+/* ----- Banda de encabezado de cada ficha ----- */
+function drawBand(doc,d,full,topY){
+  var W=PDFC.W,H=PDFC.H,M=PDFC.M,CW=W-2*M;
+  var bandTop=topY||(H-M);
+  if(full){
+    var nameLines=wrapText(d.producto||'Sin nombre',17.5,true,CW-190);
+    var bandH=nameLines.length>1?112:90;
+    doc.rect(M,bandTop-bandH,CW,bandH,PDFC.ACCENT);
+    doc.text(M+20,bandTop-30,'FICHA DE PRODUCTO',{size:8.5,bold:true,color:[0.80,0.82,1]});
+    var ny=bandTop-60;
+    for(var i=0;i<nameLines.length;i++){doc.text(M+20,ny,nameLines[i],{size:17.5,bold:true,color:[1,1,1]});ny-=24;}
+    doc.text(W-M-20,bandTop-32,d.fecha||'',{size:9.5,color:[0.90,0.91,1],align:'right'});
+    doc.text(W-M-20,bandTop-48,d.hora||'',{size:9.5,color:[0.74,0.77,0.96],align:'right'});
+    doc.y=bandTop-bandH-26;
+  }else{
+    var lines=wrapText(d.producto||'Sin nombre',13.5,true,CW-130);
+    if(lines.length>2){lines=lines.slice(0,2);lines[1]+='…';}
+    var bH=34+lines.length*18;
+    doc.rect(M,bandTop-bH,CW,bH,PDFC.ACCENT);
+    doc.text(M+16,bandTop-15,'FICHA DE PRODUCTO',{size:7.5,bold:true,color:[0.80,0.82,1]});
+    var yy=bandTop-33;
+    for(var j=0;j<lines.length;j++){doc.text(M+16,yy,lines[j],{size:13.5,bold:true,color:[1,1,1]});yy-=18;}
+    if(d._idx!=null){
+      doc.text(W-M-16,bandTop-25,d._idx+' / '+d._tot,{size:10.5,bold:true,color:[1,1,1],align:'right'});
+      doc.text(W-M-16,bandTop-41,d.fecha||'',{size:8,color:[0.85,0.87,1],align:'right'});
+    }else{
+      doc.text(W-M-16,bandTop-30,d.fecha||'',{size:9,color:[0.90,0.91,1],align:'right'});
+    }
+    doc.y=bandTop-bH-20;
+  }
+}
+
+/* ----- Cajas de resumen ----- */
+function drawBoxes(doc,d,opts){
+  opts=opts||{};
+  var W=PDFC.W,M=PDFC.M,CW=W-2*M;
+  var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
+  var costo=Number(d.costo)||0;
+  var boxes=[
+    ['TIPO',tipoLabels[d.tipo]||'Individual'],
+    ['TIEMPO ESTIMADO',d.tiempo||'—'],
+    ['TOTAL DE PIEZAS',String(d.total||0)]
+  ];
+  if(costo>0||opts.alwaysCosto)boxes.push(['COSTO MATERIALES',costo>0?fmtMoney(costo):'—']);
+  var n=boxes.length,gap=12,bw=(CW-(n-1)*gap)/n;
+  for(var b=0;b<n;b++){
+    var bx=M+b*(bw+gap),bt=doc.y,bh=50;
+    var vlines=wrapText(boxes[b][1],9.5,true,bw-22);
+    if(vlines.length>2){vlines=vlines.slice(0,2);vlines[1]+='…';}
+    doc.rect(bx,bt-bh,bw,bh,PDFC.LIGHT);
+    doc.text(bx+12,bt-17,boxes[b][0],{size:7,bold:true,color:PDFC.MUT});
+    var vy=bt-33;
+    for(var lv=0;lv<vlines.length;lv++){doc.text(bx+12,vy,vlines[lv],{size:9.5,bold:true,color:PDFC.DARK});vy-=12;}
+  }
+  doc.y-=50+22;
+}
+
+/* ----- Tabla de variantes ----- */
+function drawVariantes(doc,d){
+  var W=PDFC.W,M=PDFC.M,CW=W-2*M;
+  var vNameW=CW-120;
+  function drawVHead(){
+    doc.rect(M,doc.y-20,CW,20,PDFC.LIGHT);
+    doc.text(M+10,doc.y-14,'VARIANTE',{size:8,bold:true,color:PDFC.MUT});
+    doc.text(W-M-10,doc.y-14,'PIEZAS',{size:8,bold:true,color:PDFC.MUT,align:'right'});
+    doc.y-=20;
+  }
+  doc.text(M,doc.y-12,'VARIANTES',{size:11.5,bold:true,color:PDFC.ACCENT});
+  doc.line(M,doc.y-20,W-M,doc.y-20,PDFC.LINE,1);
+  doc.y-=32;
+  drawVHead();
+  var vsum=0,vs=Array.isArray(d.variantes)?d.variantes:[];
+  if(!vs.length){
+    doc.text(M+10,doc.y-14,'Sin variantes capturadas.',{size:9.5,color:PDFC.SOFT});
+    doc.line(M,doc.y-22,W-M,doc.y-22,PDFC.LINE,0.7);doc.y-=22;
+  }else{
+    for(var v=0;v<vs.length;v++){
+      var vname=vs[v].n||'—';
+      var lines=wrapText(vname,10,false,vNameW-20);
+      var p=Number(vs[v].p)||0;vsum+=p;
+      var rh=Math.max(20,lines.length*13+7);
+      var broke=doc.ensure(rh);if(broke)drawVHead();
+      var ly=doc.y-14;
+      for(var l=0;l<lines.length;l++){doc.text(M+10,ly,lines[l],{size:10});ly-=13;}
+      doc.text(W-M-10,doc.y-14,String(p),{size:10,bold:true,align:'right'});
+      doc.line(M,doc.y-rh,W-M,doc.y-rh,PDFC.LINE,0.7);
+      doc.y-=rh;
+    }
+  }
+  doc.line(M,doc.y,W-M,doc.y,PDFC.DARK,1);
+  doc.text(M+10,doc.y-15,'TOTAL',{size:10,bold:true});
+  doc.text(W-M-10,doc.y-15,String(vsum||d.total||0),{size:10,bold:true,align:'right'});
+  doc.y-=34;
+}
+
+/* ----- Tabla de materiales (con costo) ----- */
+function drawMateriales(doc,d){
+  var W=PDFC.W,M=PDFC.M,CW=W-2*M;
+  var cM1=M,dispC=M+235,orgC=M+300,costR=M+372,provX=M+382;
+  var wMat=186,wProv=W-M-provX;
+  function drawMHead(){
+    doc.rect(M,doc.y-20,CW,20,PDFC.LIGHT);
+    doc.text(cM1+10,doc.y-14,'MATERIAL',{size:8,bold:true,color:PDFC.MUT});
+    doc.text(dispC,doc.y-14,'DISPONIBLE',{size:8,bold:true,color:PDFC.MUT,align:'center'});
+    doc.text(orgC,doc.y-14,'ORIGEN',{size:8,bold:true,color:PDFC.MUT,align:'center'});
+    doc.text(costR,doc.y-14,'COSTO',{size:8,bold:true,color:PDFC.MUT,align:'right'});
+    doc.text(provX,doc.y-14,'PROVEEDOR',{size:8,bold:true,color:PDFC.MUT});
+    doc.y-=20;
+  }
+  doc.ensure(160);
+  doc.text(M,doc.y-12,'MATERIALES',{size:11.5,bold:true,color:PDFC.ACCENT});
+  doc.line(M,doc.y-20,W-M,doc.y-20,PDFC.LINE,1);
+  doc.y-=32;
+  drawMHead();
+  var ms=Array.isArray(d.materiales)?d.materiales:[];
+  if(!ms.length){
+    doc.text(cM1+10,doc.y-14,'Sin materiales capturados.',{size:9.5,color:PDFC.SOFT});
+    doc.line(M,doc.y-22,W-M,doc.y-22,PDFC.LINE,0.7);doc.y-=22;
+  }else{
+    for(var m=0;m<ms.length;m++){
+      var mat=ms[m];
+      var l1=wrapText(mat.n||'—',10,false,wMat-18);
+      var l2=wrapText(mat.pr||'—',10,false,wProv-16);
+      var rh2=Math.max(20,Math.max(l1.length,l2.length)*13+7);
+      var broke2=doc.ensure(rh2);if(broke2)drawMHead();
+      var ly2=doc.y-14;
+      for(var a=0;a<l1.length;a++){doc.text(cM1+10,ly2,l1[a],{size:10});ly2-=13;}
+      doc.text(dispC,doc.y-14,mat.d?'Sí':'No',{size:10,bold:!!mat.d,color:mat.d?PDFC.GREEN:PDFC.SOFT,align:'center'});
+      doc.text(orgC,doc.y-14,mat.o==='taller'?'Taller':'Externo',{size:10,align:'center'});
+      doc.text(costR,doc.y-14,mat.c>0?fmtMoney(mat.c):'—',{size:10,color:mat.c>0?PDFC.DARK:PDFC.SOFT,align:'right'});
+      var py=doc.y-14;
+      for(var q=0;q<l2.length;q++){doc.text(provX,py,l2[q],{size:10,color:PDFC.MUT});py-=13;}
+      doc.line(M,doc.y-rh2,W-M,doc.y-rh2,PDFC.LINE,0.7);
+      doc.y-=rh2;
+    }
+    var costo=Number(d.costo)||0;
+    if(costo>0){
+      doc.y-=6;
+      doc.line(M,doc.y,W-M,doc.y,PDFC.DARK,1);
+      doc.text(M+10,doc.y-15,'COSTO TOTAL DE MATERIALES',{size:10,bold:true});
+      doc.text(W-M-10,doc.y-15,fmtMoney(costo),{size:10,bold:true,align:'right'});
+      doc.y-=32;
+    }
+  }
+  doc.y-=10;
+}
+
+/* ----- Notas ----- */
+function drawNotas(doc,d){
+  if(!d.notas)return;
+  var W=PDFC.W,M=PDFC.M,CW=W-2*M;
+  doc.ensure(100);
+  doc.text(M,doc.y-12,'NOTAS',{size:11.5,bold:true,color:PDFC.ACCENT});
+  doc.line(M,doc.y-20,W-M,doc.y-20,PDFC.LINE,1);
+  doc.y-=32;
+  var nlines=wrapText(d.notas,10,false,CW);
+  for(var nn=0;nn<nlines.length;nn++){
+    doc.ensure(16);
+    doc.text(M,doc.y-12,nlines[nn],{size:10});
+    doc.y-=15;
+  }
+}
+
+function renderFicha(doc,d,full,topY){
+  drawBand(doc,d,full,topY);
+  drawBoxes(doc,d,{alwaysCosto:!full});
+  drawVariantes(doc,d);
+  drawMateriales(doc,d);
+  drawNotas(doc,d);
+}
+
+function writeFooters(doc,d){
+  var M=PDFC.M;
+  var nP=doc.pages.length;
+  var leftTxt='Generado el '+(d.fecha||'')+(d.hora?' · '+d.hora:'');
+  for(var pg=0;pg<nP;pg++){
+    doc.pages[pg].push('0.65 0.69 0.75 RG 0.7 w '+M+' 56 m '+(PDFC.W-M)+' 56 l S');
+    doc.pages[pg].push('BT 0.55 0.60 0.66 rg /F1 7.5 Tf 1 0 0 1 '+M+' 44 Tm ('+esc(leftTxt)+') Tj ET');
+    var rightTxt='Página '+(pg+1)+' de '+nP;
+    var rw=textW(rightTxt,7.5,false);
+    doc.pages[pg].push('BT 0.55 0.60 0.66 rg /F1 7.5 Tf 1 0 0 1 '+(PDFC.W-M-rw).toFixed(2)+' 44 Tm ('+esc(rightTxt)+') Tj ET');
+  }
+}
+
+function assemble(doc){
+  var objs=[];
+  var first=5;
+  var kids=[];
+  var streams=[];
+  var nP=doc.pages.length;
+  for(var pi=0;pi<nP;pi++){
+    var content=doc.pages[pi].join('\n');
+    var clen=toWin(content).length;
+    streams.push('<< /Length '+clen+' >>\nstream\n'+content+'\nendstream');
+    kids.push((first+pi*2)+' 0 R');
+  }
+  objs[0]='<< /Type /Catalog /Pages 2 0 R >>';
+  objs[1]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+nP+' >>';
+  objs[2]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  objs[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  for(var pj=0;pj<nP;pj++){
+    objs[first-1+pj*2]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+(first+pj*2+1)+' 0 R >>';
+    objs[first+pj*2]=streams[pj];
+  }
+  var chunks=[],len=0,offs=[];
+  function add(s){
+    var b=new Uint8Array(s.length);
+    for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i)&0xFF;
+    chunks.push(b);len+=b.length;
+  }
+  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  for(var oi=0;oi<objs.length;oi++){
+    offs[oi+1]=len;
+    add((oi+1)+' 0 obj\n'+objs[oi]+'\nendobj\n');
+  }
+  var xref=len;
+  var xr='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n';
+  for(var xo=1;xo<=objs.length;xo++)xr+=String(offs[xo]).padStart(10,'0')+' 00000 n \n';
+  xr+='trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+  add(xr);
+  var out=new Uint8Array(len),o=0;
+  for(var cc=0;cc<chunks.length;cc++){out.set(chunks[cc],o);o+=chunks[cc].length;}
+  return out;
+}
+
+/* PDF de una ficha */
+function buildPdfBytes(d){
+  var doc=new PdfDoc();
+  doc.runName=String(d.producto||'');
+  renderFicha(doc,d,true);
+  writeFooters(doc,d);
+  return assemble(doc);
+}
+
+/* PDF catálogo con todas las fichas */
+function buildCatalogPdf(cat){
+  var doc=new PdfDoc();
+  doc.runName='Catálogo de productos';
+  var W=PDFC.W,H=PDFC.H,M=PDFC.M,CW=W-2*M;
+  var bandTop=H-M,bH=64;
+  doc.rect(M,bandTop-bH,CW,bH,PDFC.ACCENT);
+  doc.text(M+20,bandTop-28,'CATÁLOGO DE PRODUCTOS',{size:15.5,bold:true,color:[1,1,1]});
+  doc.text(M+20,bandTop-48,'Generado el '+(cat.fecha||'')+(cat.hora?' · '+cat.hora:''),{size:9.5,color:[0.85,0.87,1]});
+  doc.text(W-M-20,bandTop-38,(cat.count||cat.fichas.length)+' fichas',{size:11,bold:true,color:[1,1,1],align:'right'});
+  doc.y=bandTop-bH-22;
+  var list=cat.fichas||[];
+  for(var i=0;i<list.length;i++){
+    if(i>0){doc.addPage();doc.smallHeader();}
+    renderFicha(doc,list[i],false,doc.y);
+  }
+  writeFooters(doc,{fecha:cat.fecha,hora:cat.hora});
+  return assemble(doc);
+}
+
+if(typeof module!=='undefined'&&module.exports)module.exports={buildPdfBytes:buildPdfBytes,buildCatalogPdf:buildCatalogPdf,wrapText:wrapText,textW:textW,fmtMoney:fmtMoney};
+/*__PDFGEN__*/
+</script>
+
+<!-- ================================================================
+     LÓGICA DE LA APP
+     ================================================================ -->
+<script>
+/*__APP__*/
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var KEY='fichaProducto.v1',FKEY='fichaProducto.fichas.v1',PROV='fichaProveedores.v1',radioSeq=0;
+var currentId=null;
+
+/* localStorage seguro (si el entorno lo bloquea, se usa memoria) */
+var store={mem:{},
+  get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return (k in this.mem)?this.mem[k]:d}},
+  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){this.mem[k]=v}},
+  del:function(k){try{localStorage.removeItem(k)}catch(e){delete this.mem[k]}}
+};
+
+var TRASH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2"/><path d="M6.5 7l1 12a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1-12"/><path d="M10 11v6M14 11v6"/></svg>';
+var CHECK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg>';
+var EYE='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+function frag(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild;}
+
+/* ---------- Filas ---------- */
+function addVariant(data){
+  data=data||{};
+  var row=frag('<div class="vrow">'
+    +'<input class="v-nombre" type="text" placeholder="Nombre de la variante (ej. Chica, Rojo)" autocomplete="off">'
+    +'<input class="v-piezas" type="number" min="0" step="1" inputmode="numeric" placeholder="0" title="Piezas por variante" aria-label="Piezas">'
+    +'<button class="del" type="button" title="Eliminar variante" aria-label="Eliminar variante">'+TRASH+'</button>'
+    +'</div>');
+  row.querySelector('.v-nombre').value=data.n||'';
+  row.querySelector('.v-piezas').value=(data.p===undefined||data.p==='')?'':data.p;
+  $('#vlist').appendChild(row);
+}
+
+function addMaterial(data){
+  data=data||{};
+  var id=++radioSeq;
+  var row=frag('<div class="mrow">'
+    +'<div class="mline">'
+    +'<input class="m-nombre" type="text" placeholder="Nombre del material (ej. Lona cruda 12 oz)" autocomplete="off">'
+    +'<button class="del" type="button" title="Eliminar material" aria-label="Eliminar material">'+TRASH+'</button>'
+    +'</div>'
+    +'<div class="mopts">'
+    +'<label class="chk" title="¿Hay existencia de este material?">'
+    +'<input class="m-disp" type="checkbox"><span class="box">'+CHECK+'</span><span class="lbl">Disponible</span>'
+    +'</label>'
+    +'<div class="seg mini" role="radiogroup" aria-label="Taller o externo">'
+    +'<label class="opt"><input class="m-origen" type="radio" name="origen-'+id+'" value="taller"><span>Taller</span></label>'
+    +'<label class="opt"><input class="m-origen" type="radio" name="origen-'+id+'" value="externo"><span>Externo</span></label>'
+    +'</div>'
+    +'<div class="cost" title="Costo aproximado del material"><span>$</span><input class="m-costo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Costo"></div>'
+    +'<input class="m-proveedor" type="text" list="dl-proveedores" placeholder="Proveedor (ej. Telas MX)" autocomplete="off">'
+    +'</div>'
+    +'</div>');
+  row.querySelector('.m-nombre').value=data.n||'';
+  row.querySelector('.m-disp').checked=!!data.d;
+  var origen=data.o||'externo';
+  var r=row.querySelector('.m-origen[value="'+origen+'"]');
+  (r||row.querySelector('.m-origen[value="externo"]')).checked=true;
+  row.querySelector('.m-costo').value=(data.c===undefined||data.c===null||data.c===0||data.c==='')?'':data.c;
+  row.querySelector('.m-proveedor').value=data.pr||'';
+  $('#mlist').appendChild(row);
+}
+
+/* ---------- Datos ---------- */
+function collect(){
+  var variantes=Array.prototype.map.call(document.querySelectorAll('#vlist .vrow'),function(r){
+    return {n:r.querySelector('.v-nombre').value.trim(),
+            p:parseInt(r.querySelector('.v-piezas').value,10)||0};
+  });
+  var materiales=Array.prototype.map.call(document.querySelectorAll('#mlist .mrow'),function(r){
+    var chk=r.querySelector('.m-origen:checked');
+    return {n:r.querySelector('.m-nombre').value.trim(),
+            d:r.querySelector('.m-disp').checked,
+            o:chk?chk.value:'externo',
+            c:Math.max(0,parseFloat(r.querySelector('.m-costo').value)||0),
+            pr:r.querySelector('.m-proveedor').value.trim()};
+  });
+  var tipo=document.querySelector('input[name="tipo"]:checked');
+  return {producto:$('#producto').value.trim(),
+          tipo:tipo?tipo.value:'individual',
+          tiempo:$('#tiempo').value.trim(),
+          notas:$('#notas').value.trim(),
+          variantes:variantes,materiales:materiales};
+}
+
+/* versión "limpia" para guardar/exportar: sin filas vacías */
+function cleanedData(d){
+  var vs=(d.variantes||[]).filter(function(v){return v.n||v.p});
+  var ms=(d.materiales||[]).filter(function(m){return m.n||m.pr||m.c>0});
+  return {producto:d.producto,tipo:d.tipo,tiempo:d.tiempo,notas:d.notas,
+    variantes:vs,materiales:ms,
+    total:vs.reduce(function(a,v){return a+(v.p||0)},0),
+    costo:ms.reduce(function(a,m){return a+(m.c||0)},0)};
+}
+
+function totalPiezas(){
+  var t=0;
+  document.querySelectorAll('#vlist .v-piezas').forEach(function(i){t+=parseInt(i.value,10)||0});
+  return t;
+}
+function updateTotal(){$('#totalPiezas').textContent=String(totalPiezas());}
+function costoTotal(){
+  var t=0;
+  document.querySelectorAll('#mlist .m-costo').forEach(function(i){t+=Math.max(0,parseFloat(i.value)||0)});
+  return t;
+}
+function updateCosto(){$('#costoMateriales').textContent=fmtMoney(costoTotal());}
+function updateTotals(){updateTotal();updateCosto();}
+
+/* ---------- Proveedores (autocompletado) ---------- */
+function updateProvDatalist(){
+  var list=store.get(PROV,[]);
+  var set={};list.forEach(function(p){set[p]=1});
+  document.querySelectorAll('.m-proveedor').forEach(function(i){
+    var v=i.value.trim();if(v)set[v]=1;
+  });
+  var arr=Object.keys(set).slice(0,60);
+  store.set(PROV,arr);
+  var dl=$('#dl-proveedores');dl.innerHTML='';
+  arr.forEach(function(p){
+    var o=document.createElement('option');o.value=p;dl.appendChild(o);
+  });
+}
+
+/* ---------- Guardado automático del borrador ---------- */
+var saveT=null;
+function save(){
+  clearTimeout(saveT);
+  saveT=setTimeout(function(){
+    store.set(KEY,{d:collect(),fid:currentId});
+    updateProvDatalist();
+  },400);
+}
+
+/* ---------- Toast ---------- */
+var toastT=null;
+function toast(msg,type){
+  var t=$('#toast');
+  t.textContent=msg;
+  t.className='toast show'+(type==='err'?' err':'');
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){t.className='toast'},2600);
+}
+
+/* ---------- Fichas guardadas ---------- */
+function getFichas(){return store.get(FKEY,[]);}
+function setFichas(a){store.set(FKEY,a);updateCount();}
+function updateCount(){
+  $('#hdrCount').textContent=String(getFichas().length);
+  $('#fTitle').textContent='Mis fichas ('+getFichas().length+')';
+}
+function fmtFecha(iso){return new Date(iso).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});}
+function fmtHora(iso){return new Date(iso).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+
+function saveFicha(){
+  var d=collect();
+  if(!d.producto){
+    toast('Primero escribe el nombre del producto','err');
+    $('#producto').focus();
+    return;
+  }
+  var clean=cleanedData(d);
+  var fichas=getFichas(),idx=-1;
+  if(currentId){
+    for(var i=0;i<fichas.length;i++){if(fichas[i].id===currentId){idx=i;break;}}
+  }
+  if(idx>=0){
+    fichas[idx].data=clean;
+    fichas[idx].act=new Date().toISOString();
+  }else{
+    currentId='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+    fichas.unshift({id:currentId,fecha:new Date().toISOString(),data:clean});
+  }
+  setFichas(fichas);
+  store.set(KEY,{d:d,fid:currentId});
+  toast(idx>=0?'Ficha actualizada ✓':'Ficha guardada ✓');
+}
+
+function loadFicha(f){
+  var d=f.data||{};
+  currentId=f.id;
+  $('#producto').value=d.producto||'';
+  $('#tiempo').value=d.tiempo||'';
+  $('#notas').value=d.notas||'';
+  var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
+  if(tr)tr.checked=true;
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';
+  (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
+  (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
+  updateTotals();
+  updateProvDatalist();
+  store.set(KEY,{d:collect(),fid:currentId});
+  closeFichas();
+  window.scrollTo(0,0);
+  toast('Ficha cargada: '+d.producto);
+}
+
+function deleteFicha(id,btn){
+  var fichas=getFichas().filter(function(f){return f.id!==id});
+  setFichas(fichas);
+  if(currentId===id)currentId=null;
+  renderFichasList();
+  toast('Ficha eliminada');
+}
+
+/* ---------- Lista de fichas ---------- */
+function renderFichasList(){
+  var box=$('#fList');
+  box.innerHTML='';
+  var fichas=getFichas();
+  if(!fichas.length){
+    box.innerHTML='<div class="fempty">'
+      +'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>'
+      +'<div>Aún no hay fichas guardadas.</div>'
+      +'<div style="margin-top:4px">Captura una ficha y toca <b>Guardar</b>.</div></div>';
+    return;
+  }
+  var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
+  fichas.forEach(function(f){
+    var d=f.data||{};
+    var meta=(fmtFecha(f.fecha)||'')+' · '+(tipoLabels[d.tipo]||'Individual')
+      +' · '+(d.total||0)+' piezas'
+      +(d.costo>0?' · '+fmtMoney(d.costo):'');
+    var item=frag('<div class="fitem">'
+      +'<div class="finfo"><div class="fname"></div><div class="fmeta"></div></div>'
+      +'<div class="facts">'
+      +'<button class="fbt act-abrir" type="button">Abrir</button>'
+      +'<button class="fbt alt act-pdf" type="button">'+EYE+' PDF</button>'
+      +'<button class="fdel act-del" type="button" title="Eliminar ficha" aria-label="Eliminar ficha">'+TRASH+'</button>'
+      +'</div></div>');
+    item.querySelector('.fname').textContent=d.producto||'Sin nombre';
+    item.querySelector('.fmeta').textContent=meta;
+    item.querySelector('.act-abrir').addEventListener('click',function(){loadFicha(f)});
+    item.querySelector('.act-pdf').addEventListener('click',function(){
+      var dt=new Date(f.fecha);
+      var data=Object.assign({},d,{fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha)});
+      var bytes=buildPdfBytes(data);
+      var blob=new Blob([bytes],{type:'application/pdf'});
+      downloadBlob(blob,'ficha-'+slug(d.producto)+'-'+dt.toISOString().slice(0,10)+'.pdf');
+      toast('PDF generado ✓');
+    });
+    var delBtn=item.querySelector('.act-del');
+    delBtn.addEventListener('click',function(){
+      if(!delBtn.classList.contains('armed')){
+        delBtn.classList.add('armed');
+        delBtn.textContent='¿Seguro?';
+        setTimeout(function(){
+          if(delBtn.isConnected){delBtn.classList.remove('armed');delBtn.innerHTML=TRASH;}
+        },3000);
+        return;
+      }
+      deleteFicha(f.id,delBtn);
+    });
+    box.appendChild(item);
+  });
+}
+function openFichas(){renderFichasList();updateCount();$('#fOverlay').classList.add('open');}
+function closeFichas(){$('#fOverlay').classList.remove('open');}
+
+/* ---------- Descargas ---------- */
+function slug(s){
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase().slice(0,40)||'producto';
+}
+function downloadBlob(blob,name){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url)},4000);
+}
+
+/* ---------- PDF de la ficha actual ---------- */
+var lastUrl=null,lastName='ficha.pdf';
+function generatePdf(){
+  var d=collect();
+  if(!d.producto){
+    toast('Primero escribe el nombre del producto','err');
+    $('#producto').focus();
+    return false;
+  }
+  var now=new Date();
+  var data=cleanedData(d);
+  data.fecha=now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  data.hora=now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  try{
+    var bytes=buildPdfBytes(data);
+    var blob=new Blob([bytes],{type:'application/pdf'});
+    if(lastUrl)URL.revokeObjectURL(lastUrl);
+    lastUrl=URL.createObjectURL(blob);
+    lastName='ficha-'+slug(data.producto)+'-'+now.toISOString().slice(0,10)+'.pdf';
+  }catch(err){
+    console.error(err);
+    toast('No se pudo generar el PDF','err');
+    return false;
+  }
+  return true;
+}
+function downloadPdf(){
+  if(!generatePdf())return;
+  var a=document.createElement('a');
+  a.href=lastUrl;a.download=lastName;
+  document.body.appendChild(a);a.click();a.remove();
+  toast('PDF generado ✓');
+}
+
+/* ---------- Exportar todo ---------- */
+function exportAllPdf(){
+  var fichas=getFichas();
+  if(!fichas.length){toast('Aún no hay fichas guardadas','err');return;}
+  var now=new Date();
+  var list=fichas.map(function(f,i){
+    return Object.assign({},f.data,{
+      fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha),
+      _idx:i+1,_tot:fichas.length
+    });
+  });
+  try{
+    var bytes=buildCatalogPdf({fichas:list,count:list.length,
+      fecha:now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}),
+      hora:now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})});
+    var blob=new Blob([bytes],{type:'application/pdf'});
+    downloadBlob(blob,'catalogo-fichas-'+now.toISOString().slice(0,10)+'.pdf');
+    toast('Catálogo con '+list.length+' ficha'+(list.length!==1?'s':'')+' ✓');
+  }catch(err){
+    console.error(err);
+    toast('No se pudo generar el catálogo','err');
+  }
+}
+function csvCell(v){
+  return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+}
+function exportCsv(){
+  var fichas=getFichas();
+  if(!fichas.length){toast('Aún no hay fichas guardadas','err');return;}
+  var rows=[['Producto','Tipo','Tiempo estimado','Total piezas','Costo materiales','Variantes','Materiales','Proveedores','Notas','Fecha guardada']];
+  var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
+  fichas.forEach(function(f){
+    var d=f.data||{};
+    var variantes=(d.variantes||[]).map(function(v){return (v.n||'—')+': '+(v.p||0)}).join('; ');
+    var materiales=(d.materiales||[]).map(function(m){
+      return (m.n||'—')+' ('+(m.d?'disponible':'no disponible')+', '+(m.o==='taller'?'taller':'externo')
+        +(m.c>0?', '+fmtMoney(m.c):'')+(m.pr?', '+m.pr:'')+')';
+    }).join('; ');
+    var provs=[];
+    (d.materiales||[]).forEach(function(m){if(m.pr&&provs.indexOf(m.pr)<0)provs.push(m.pr)});
+    rows.push([d.producto||'',tipoLabels[d.tipo]||'Individual',d.tiempo||'',
+      d.total||0,d.costo>0?fmtMoney(d.costo):'',
+      variantes,materiales,provs.join('; '),d.notas||'',
+      fmtFecha(f.fecha)+' '+fmtHora(f.fecha)]);
+  });
+  var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  downloadBlob(blob,'fichas-'+new Date().toISOString().slice(0,10)+'.csv');
+  toast('CSV con '+fichas.length+' ficha'+(fichas.length!==1?'s':'')+' ✓');
+}
+
+/* ---------- Modal PDF ---------- */
+function openModal(){
+  $('#overlay').classList.add('open');
+  $('#mFrame').src=lastUrl;
+  var dl=$('#mDl');dl.href=lastUrl;dl.download=lastName;
+}
+function closeModal(){
+  $('#overlay').classList.remove('open');
+  setTimeout(function(){$('#mFrame').src='about:blank'},200);
+}
+
+/* ---------- Nueva ficha (confirmación en 2 toques) ---------- */
+var armed=false,armT=null;
+var btnNueva=$('#btnNueva');
+function disarm(){armed=false;clearTimeout(armT);btnNueva.classList.remove('warn');btnNueva.textContent='Nueva';}
+btnNueva.addEventListener('click',function(){
+  if(!armed){
+    armed=true;btnNueva.classList.add('warn');btnNueva.textContent='¿Borrar todo? Toca de nuevo';
+    armT=setTimeout(disarm,3500);
+    return;
+  }
+  disarm();
+  store.del(KEY);
+  currentId=null;
+  $('#producto').value='';$('#tiempo').value='';$('#notas').value='';
+  document.querySelector('input[name="tipo"][value="individual"]').checked=true;
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';
+  addVariant();addMaterial();
+  updateTotals();
+  toast('Nueva ficha lista');
+});
+
+/* ---------- Eventos ---------- */
+$('#btnAddVar').addEventListener('click',function(){addVariant();save();
+  var rows=document.querySelectorAll('.v-nombre');if(rows.length)rows[rows.length-1].focus();});
+$('#btnAddMat').addEventListener('click',function(){addMaterial();save();
+  var rows=document.querySelectorAll('.m-nombre');if(rows.length)rows[rows.length-1].focus();});
+
+$('#vlist').addEventListener('input',function(){updateTotal();save();});
+$('#vlist').addEventListener('click',function(e){
+  var b=e.target.closest('.del');
+  if(b){b.closest('.vrow').remove();updateTotal();save();}
+});
+$('#mlist').addEventListener('input',function(){updateCosto();save();});
+$('#mlist').addEventListener('click',function(e){
+  var b=e.target.closest('.del');
+  if(b){b.closest('.mrow').remove();updateCosto();save();}
+});
+$('#producto').addEventListener('input',save);
+$('#tiempo').addEventListener('input',save);
+$('#notas').addEventListener('input',save);
+document.querySelectorAll('input[name="tipo"]').forEach(function(r){r.addEventListener('change',save)});
+
+$('#btnGuardar').addEventListener('click',saveFicha);
+$('#btnPdf').addEventListener('click',downloadPdf);
+$('#btnVer').addEventListener('click',function(){
+  if(!generatePdf())return;
+  openModal();
+  toast('Usa “Descargar” en la barra del visor');
+});
+$('#mClose').addEventListener('click',closeModal);
+$('#overlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
+$('#btnFichas').addEventListener('click',openFichas);
+$('#fClose').addEventListener('click',closeFichas);
+$('#fOverlay').addEventListener('click',function(e){if(e.target===this)closeFichas()});
+$('#btnExpPdf').addEventListener('click',exportAllPdf);
+$('#btnExpCsv').addEventListener('click',exportCsv);
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeModal();closeFichas();}
+});
+$('#mDl').addEventListener('click',function(){toast('PDF generado ✓')});
+
+/* ---------- PWA ---------- */
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+var deferredPrompt=null,bi=$('#btnInstalar');
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();deferredPrompt=e;bi.hidden=false;
+});
+bi.addEventListener('click',function(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(){deferredPrompt=null;bi.hidden=true;});
+});
+
+/* ---------- Restaurar borrador ---------- */
+(function restore(){
+  var raw=store.get(KEY,null);
+  var d=null;
+  if(raw){
+    if(raw&&raw.d){d=raw.d;currentId=raw.fid||null;}
+    else{d=raw;currentId=null;} /* borrador de versión anterior */
+  }
+  if(d){
+    $('#producto').value=d.producto||'';
+    $('#tiempo').value=d.tiempo||'';
+    $('#notas').value=d.notas||'';
+    var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
+    if(tr)tr.checked=true;
+    (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
+    (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
+  }else{
+    addVariant();addMaterial();
+  }
+  updateTotals();
+  updateProvDatalist();
+  updateCount();
+})();
+})();
+/*__APP__*/
+</script>
+</body>
+</html>
+ml>
