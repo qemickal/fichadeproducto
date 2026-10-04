@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ficha de Producto</title>
-<meta name="description" content="Captura fichas de producto con variantes, materiales, costos y proveedores; guárdalas y expórtalas a PDF. Funciona sin internet.">
+<meta name="description" content="Desglosa costos por producto, calcula costo por pieza y precio sugerido, guarda tus fichas y expórtalas a PDF. Funciona sin internet.">
 <meta name="theme-color" content="#4f46e5">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -55,12 +55,15 @@ h1{font-size:19px;margin:0;font-weight:750;letter-spacing:.01em}
 
 /* ---------- Inputs ---------- */
 label.fl{display:block;font-size:11.5px;font-weight:750;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
-input[type=text],input[type=number],textarea{
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.formgrid .cost{margin-top:0;width:100%;min-height:44px}
+.formgrid .cost input{flex:1;width:0;min-width:0;min-height:36px;font-size:14.5px}
+input[type=text],input[type=number],input[type=search],textarea{
   width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;
   font:inherit;font-size:14.5px;background:#fff;color:var(--ink);outline:none;
   transition:border-color .15s, box-shadow .15s;min-height:44px;
 }
-input[type=text]:focus,input[type=number]:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+input[type=text]:focus,input[type=number]:focus,input[type=search]:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
 input::placeholder,textarea::placeholder{color:#9aa4b8}
 textarea{min-height:84px;resize:vertical}
 input[type=number]{-moz-appearance:textfield}
@@ -88,16 +91,40 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 /* ---------- Filas de variantes ---------- */
 .vrow{display:grid;grid-template-columns:1fr 92px 38px;gap:8px;margin-bottom:8px}
 
-/* ---------- Filas de materiales ---------- */
+/* ---------- Filas de materiales y costos ---------- */
 .mrow{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:#fbfcfe}
 .mline{display:grid;grid-template-columns:1fr 38px;gap:8px}
-.mopts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
-.mopts .m-proveedor{flex:1;min-width:170px;min-height:38px;padding:8px 10px;font-size:13.5px}
-.cost{display:flex;align-items:center;gap:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;min-height:38px;transition:border-color .15s, box-shadow .15s}
+.mcalc{display:grid;grid-template-columns:minmax(86px,1fr) minmax(84px,.9fr) minmax(125px,1.2fr) minmax(105px,1fr);gap:8px;margin-top:8px;align-items:end}
+.mfield{display:block;min-width:0;font-size:10px;font-weight:750;color:var(--mut);text-transform:uppercase;letter-spacing:.035em}
+.mfield>input{margin-top:5px;min-height:38px;padding:8px 9px;font-size:13px}
+.cost{display:flex;align-items:center;gap:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:0 9px;min-height:38px;transition:border-color .15s, box-shadow .15s}
 .cost:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
 .cost span{color:var(--mut);font-weight:750;font-size:13.5px}
-.cost input{border:none;box-shadow:none;padding:8px 2px;min-height:30px;width:76px;font-size:13.5px;font-weight:650}
+.cost input{border:none;box-shadow:none;padding:7px 2px;min-height:30px;width:76px;font-size:13.5px;font-weight:650}
 .cost input:focus{border:none;box-shadow:none}
+.mfield .cost{margin-top:5px}
+.mfield .cost input{flex:1;width:0;min-width:0}
+.m-subtotal{min-height:38px;padding:5px 8px;background:var(--soft);border:1px solid #dfe4ff;border-radius:10px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.m-subtotal span{font-size:9px;color:var(--mut);font-weight:750;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap}
+.m-subtotal strong{font-size:13px;color:var(--accd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mopts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.mopts .m-proveedor{flex:1;min-width:170px;min-height:38px;padding:8px 10px;font-size:13.5px}
+.xrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,160px) 38px;gap:8px;margin-bottom:8px;align-items:center}
+.xrow .cost{width:100%}
+.xrow .cost input{flex:1;width:0;min-width:0}
+.minor-title{font-size:13px;font-weight:750;margin:16px 0 2px}
+.cost-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:12px 0 14px}
+.sum-item{padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#f8faff;min-width:0}
+.sum-item span{display:block;color:var(--mut);font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.035em}
+.sum-item strong{display:block;margin-top:3px;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sum-item.primary{background:var(--soft);border-color:#dfe4ff;color:var(--accd)}
+.sum-item.primary span{color:var(--accd)}
+.margin-control{display:flex;align-items:center;gap:8px;max-width:220px}
+.margin-control input{max-width:150px}
+.price-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.price-summary .sum-item{background:#fff}
+.price-summary .sum-item.recommended{background:#ecfdf5;border-color:#a7f3d0}
+.price-summary .sum-item.recommended strong{color:#047857}
 
 .del{width:38px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:#8b95a9;display:grid;place-items:center;cursor:pointer;transition:all .15s;padding:0}
 .del:hover{border-color:#fca5a5;color:var(--err);background:#fef2f2}
@@ -125,11 +152,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .btn.iconbtn{flex:0 0 50px;padding:12px 0}
 .btn.mini{padding:8px 12px;font-size:12.5px;border-radius:10px;flex:none}
 .lbl-short{display:none}
+@media (max-width:560px){
+  .mcalc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .formgrid{grid-template-columns:1fr}
+  .mopts .m-proveedor{min-width:100%;flex-basis:100%}
+  .mopts .seg{flex:1}
+  .cost-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media (max-width:420px){
   .btn{font-size:13px;padding:12px 8px}
   .btn.primary{flex:1.4}
   .lbl-long{display:none}
   .lbl-short{display:inline}
+  .xrow{grid-template-columns:minmax(0,1fr) minmax(105px,130px) 38px;gap:6px}
+  .price-summary{grid-template-columns:1fr}
 }
 
 /* ---------- Overlays ---------- */
@@ -156,6 +192,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .fdel.armed{width:auto;padding:0 10px;background:var(--err);border-color:var(--err);color:#fff;font-size:12px;font-weight:750}
 .fempty{padding:44px 12px;text-align:center;color:var(--mut);font-size:13.5px}
 .fempty svg{opacity:.4;margin-bottom:10px}
+.fsearch{padding:12px 14px 0}
+.fsearch input{min-height:40px}
+.file-input{display:none}
 
 /* ---------- Toast ---------- */
 .toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);background:#111827;color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:650;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:88vw;text-align:center}
@@ -177,7 +216,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
     <div>
       <h1>Ficha de Producto</h1>
-      <div class="sub">Se guarda automáticamente en este dispositivo</div>
+      <div class="sub">Costea, guarda y cotiza tus productos. Funciona sin internet.</div>
     </div>
     <button id="btnFichas" class="pill" type="button">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>
@@ -230,15 +269,71 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <!-- ============ MATERIALES ============ -->
   <section class="card">
     <h2><span class="dot"></span>Materiales</h2>
-    <p class="hint">Marca si hay disponible, elige taller o externo, asigna proveedor y captura el costo aproximado.</p>
+    <p class="hint">Indica la cantidad de material que usarás para todo el lote y el costo por unidad de medida. El importe de cada renglón se calcula automáticamente.</p>
     <div id="mlist"></div>
     <button class="addbtn" id="btnAddMat" type="button">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       Agregar material
     </button>
     <div class="totalbar">
-      <span class="tl">Costo de materiales (aprox.)</span>
+      <span class="tl">Subtotal de materiales</span>
       <span class="tv" id="costoMateriales">$0.00</span>
+    </div>
+  </section>
+
+  <!-- ============ MANO DE OBRA Y GASTOS ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Mano de obra y gastos</h2>
+    <p class="hint">Captura estos importes para el lote completo, no por pieza. La mano de obra se calcula con horas × costo por hora.</p>
+
+    <div class="formgrid">
+      <div>
+        <label class="fl" for="horas">Horas de trabajo del lote</label>
+        <input id="horas" type="number" min="0" step="0.25" inputmode="decimal" placeholder="Ej. 4">
+      </div>
+      <div>
+        <label class="fl" for="tarifa">Costo por hora</label>
+        <div class="cost"><span>$</span><input id="tarifa" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Costo por hora"></div>
+      </div>
+    </div>
+    <div class="totalbar">
+      <span class="tl">Costo de mano de obra</span>
+      <span class="tv" id="costoManoObra">$0.00</span>
+    </div>
+
+    <h3 class="minor-title">Gastos adicionales del lote</h3>
+    <p class="hint">Por ejemplo: empaque, envío, electricidad u otros costos que quieras considerar.</p>
+    <div id="elist"></div>
+    <button class="addbtn" id="btnAddExtra" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Agregar gasto
+    </button>
+    <div class="totalbar">
+      <span class="tl">Total de gastos adicionales</span>
+      <span class="tv" id="costoExtras">$0.00</span>
+    </div>
+  </section>
+
+  <!-- ============ RESUMEN DE COSTOS ============ -->
+  <section class="card">
+    <h2><span class="dot"></span>Resumen de costos y precio</h2>
+    <p class="hint">El costo por pieza divide el costo total del lote entre sus piezas. El precio sugerido usa el margen objetivo y no incluye impuestos.</p>
+    <div class="cost-summary">
+      <div class="sum-item"><span>Materiales · lote</span><strong id="resMateriales">$0.00</strong></div>
+      <div class="sum-item"><span>Mano de obra · lote</span><strong id="resManoObra">$0.00</strong></div>
+      <div class="sum-item"><span>Gastos extra · lote</span><strong id="resExtras">$0.00</strong></div>
+      <div class="sum-item primary"><span>Costo total · lote</span><strong id="resTotal">$0.00</strong></div>
+      <div class="sum-item"><span>Costo por pieza</span><strong id="resUnitario">—</strong></div>
+    </div>
+    <label class="fl" for="margen">Margen de ganancia objetivo (%)</label>
+    <div class="margin-control">
+      <input id="margen" type="number" min="0" max="95" step="0.1" inputmode="decimal" placeholder="Ej. 35">
+      <span>%</span>
+    </div>
+    <p class="hint" style="margin-top:6px">Se calcula sobre el precio de venta: (precio − costo) ÷ precio.</p>
+    <div class="price-summary">
+      <div class="sum-item recommended"><span>Precio sugerido por pieza</span><strong id="precioSugerido">—</strong></div>
+      <div class="sum-item"><span>Ganancia bruta estimada por pieza</span><strong id="gananciaUnit">—</strong></div>
     </div>
   </section>
 
@@ -269,6 +364,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 </div>
 
 <datalist id="dl-proveedores"></datalist>
+<input class="file-input" id="importBackup" type="file" accept=".json,application/json">
 
 <!-- ============ Modal: vista previa PDF ============ -->
 <div class="overlay" id="overlay">
@@ -292,6 +388,12 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <div class="sheet listas" role="dialog" aria-modal="true" aria-label="Mis fichas guardadas">
     <div class="shead">
       <div class="st" id="fTitle">Mis fichas</div>
+      <button class="btn soft mini" id="btnExpJson" type="button" title="Descargar un respaldo que puedes importar en otro dispositivo">
+        Respaldo
+      </button>
+      <button class="btn soft mini" id="btnImpJson" type="button" title="Importar fichas desde un respaldo JSON">
+        Importar
+      </button>
       <button class="btn soft mini" id="btnExpCsv" type="button" title="Exportar todas las fichas a CSV (Excel)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 4v16"/></svg>
         Excel (CSV)
@@ -303,6 +405,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <button class="x" id="fClose" type="button" aria-label="Cerrar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
+    </div>
+    <div class="fsearch">
+      <input id="searchFichas" type="search" placeholder="Buscar por nombre de producto…" aria-label="Buscar productos guardados">
+      <p class="hint" style="margin:7px 0 0">Se guardan en este navegador y no se sincronizan solos. Usa <b>Respaldo</b> e <b>Importar</b> para mover o conservar tu base.</p>
     </div>
     <div class="flist" id="fList"></div>
   </div>
@@ -439,27 +545,25 @@ function drawBand(doc,d,full,topY){
 
 /* ----- Cajas de resumen ----- */
 function drawBoxes(doc,d,opts){
-  opts=opts||{};
   var W=PDFC.W,M=PDFC.M,CW=W-2*M;
   var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
-  var costo=Number(d.costo)||0;
   var boxes=[
     ['TIPO',tipoLabels[d.tipo]||'Individual'],
     ['TIEMPO ESTIMADO',d.tiempo||'—'],
-    ['TOTAL DE PIEZAS',String(d.total||0)]
+    ['PIEZAS DEL LOTE',String(d.total||0)],
+    ['COSTO TOTAL DEL LOTE',fmtMoney(d.costoTotal!=null?d.costoTotal:d.costo)]
   ];
-  if(costo>0||opts.alwaysCosto)boxes.push(['COSTO MATERIALES',costo>0?fmtMoney(costo):'—']);
-  var n=boxes.length,gap=12,bw=(CW-(n-1)*gap)/n;
+  var n=boxes.length,gap=10,bw=(CW-(n-1)*gap)/n;
   for(var b=0;b<n;b++){
-    var bx=M+b*(bw+gap),bt=doc.y,bh=50;
-    var vlines=wrapText(boxes[b][1],9.5,true,bw-22);
+    var bx=M+b*(bw+gap),bt=doc.y,bh=54;
+    var vlines=wrapText(boxes[b][1],9,true,bw-18);
     if(vlines.length>2){vlines=vlines.slice(0,2);vlines[1]+='…';}
-    doc.rect(bx,bt-bh,bw,bh,PDFC.LIGHT);
-    doc.text(bx+12,bt-17,boxes[b][0],{size:7,bold:true,color:PDFC.MUT});
-    var vy=bt-33;
-    for(var lv=0;lv<vlines.length;lv++){doc.text(bx+12,vy,vlines[lv],{size:9.5,bold:true,color:PDFC.DARK});vy-=12;}
+    doc.rect(bx,bt-bh,bw,bh,b===3?[0.925,0.930,1]:PDFC.LIGHT);
+    doc.text(bx+9,bt-17,boxes[b][0],{size:6.5,bold:true,color:b===3?PDFC.ACCENT:PDFC.MUT});
+    var vy=bt-34;
+    for(var lv=0;lv<vlines.length;lv++){doc.text(bx+9,vy,vlines[lv],{size:9,bold:true,color:b===3?PDFC.ACCENT:PDFC.DARK});vy-=11;}
   }
-  doc.y-=50+22;
+  doc.y-=54+20;
 }
 
 /* ----- Tabla de variantes ----- */
@@ -503,15 +607,17 @@ function drawVariantes(doc,d){
 /* ----- Tabla de materiales (con costo) ----- */
 function drawMateriales(doc,d){
   var W=PDFC.W,M=PDFC.M,CW=W-2*M;
-  var cM1=M,dispC=M+235,orgC=M+300,costR=M+372,provX=M+382;
-  var wMat=186,wProv=W-M-provX;
+  var matX=M+8,qtyX=M+155,unitCostR=M+248,costR=M+314,dispX=M+336,originX=M+387,provX=M+417;
+  var wMat=112,wProv=W-M-provX;
   function drawMHead(){
     doc.rect(M,doc.y-20,CW,20,PDFC.LIGHT);
-    doc.text(cM1+10,doc.y-14,'MATERIAL',{size:8,bold:true,color:PDFC.MUT});
-    doc.text(dispC,doc.y-14,'DISPONIBLE',{size:8,bold:true,color:PDFC.MUT,align:'center'});
-    doc.text(orgC,doc.y-14,'ORIGEN',{size:8,bold:true,color:PDFC.MUT,align:'center'});
-    doc.text(costR,doc.y-14,'COSTO',{size:8,bold:true,color:PDFC.MUT,align:'right'});
-    doc.text(provX,doc.y-14,'PROVEEDOR',{size:8,bold:true,color:PDFC.MUT});
+    doc.text(matX,doc.y-14,'MATERIAL',{size:7.2,bold:true,color:PDFC.MUT});
+    doc.text(qtyX,doc.y-14,'CANT./UD.',{size:7,bold:true,color:PDFC.MUT,align:'center'});
+    doc.text(unitCostR,doc.y-14,'COSTO UD.',{size:7,bold:true,color:PDFC.MUT,align:'right'});
+    doc.text(costR,doc.y-14,'IMPORTE',{size:7,bold:true,color:PDFC.MUT,align:'right'});
+    doc.text(dispX,doc.y-14,'DISP.',{size:7,bold:true,color:PDFC.MUT,align:'center'});
+    doc.text(originX,doc.y-14,'ORIGEN',{size:7,bold:true,color:PDFC.MUT,align:'center'});
+    doc.text(provX,doc.y-14,'PROVEEDOR',{size:7,bold:true,color:PDFC.MUT});
     doc.y-=20;
   }
   doc.ensure(160);
@@ -521,35 +627,81 @@ function drawMateriales(doc,d){
   drawMHead();
   var ms=Array.isArray(d.materiales)?d.materiales:[];
   if(!ms.length){
-    doc.text(cM1+10,doc.y-14,'Sin materiales capturados.',{size:9.5,color:PDFC.SOFT});
+    doc.text(matX,doc.y-14,'Sin materiales capturados.',{size:9.5,color:PDFC.SOFT});
     doc.line(M,doc.y-22,W-M,doc.y-22,PDFC.LINE,0.7);doc.y-=22;
   }else{
     for(var m=0;m<ms.length;m++){
       var mat=ms[m];
-      var l1=wrapText(mat.n||'—',10,false,wMat-18);
-      var l2=wrapText(mat.pr||'—',10,false,wProv-16);
-      var rh2=Math.max(20,Math.max(l1.length,l2.length)*13+7);
-      var broke2=doc.ensure(rh2);if(broke2)drawMHead();
-      var ly2=doc.y-14;
-      for(var a=0;a<l1.length;a++){doc.text(cM1+10,ly2,l1[a],{size:10});ly2-=13;}
-      doc.text(dispC,doc.y-14,mat.d?'Sí':'No',{size:10,bold:!!mat.d,color:mat.d?PDFC.GREEN:PDFC.SOFT,align:'center'});
-      doc.text(orgC,doc.y-14,mat.o==='taller'?'Taller':'Externo',{size:10,align:'center'});
-      doc.text(costR,doc.y-14,mat.c>0?fmtMoney(mat.c):'—',{size:10,color:mat.c>0?PDFC.DARK:PDFC.SOFT,align:'right'});
-      var py=doc.y-14;
-      for(var q=0;q<l2.length;q++){doc.text(provX,py,l2[q],{size:10,color:PDFC.MUT});py-=13;}
-      doc.line(M,doc.y-rh2,W-M,doc.y-rh2,PDFC.LINE,0.7);
-      doc.y-=rh2;
-    }
-    var costo=Number(d.costo)||0;
-    if(costo>0){
-      doc.y-=6;
-      doc.line(M,doc.y,W-M,doc.y,PDFC.DARK,1);
-      doc.text(M+10,doc.y-15,'COSTO TOTAL DE MATERIALES',{size:10,bold:true});
-      doc.text(W-M-10,doc.y-15,fmtMoney(costo),{size:10,bold:true,align:'right'});
-      doc.y-=32;
+      var l1=wrapText(mat.n||'—',9.5,false,wMat);
+      var qty=String(mat.q==null?1:mat.q)+' '+(mat.u||'pza');
+      var lqty=wrapText(qty,7.5,false,44);
+      var l2=wrapText(mat.pr||'—',9,false,wProv-6);
+      var rh=Math.max(20,Math.max(l1.length,lqty.length,l2.length)*12+8);
+      var broke=doc.ensure(rh);if(broke)drawMHead();
+      var ly=doc.y-13;
+      for(var a=0;a<l1.length;a++){doc.text(matX,ly,l1[a],{size:9.5});ly-=12;}
+      var qy=doc.y-13;
+      for(var qi=0;qi<lqty.length;qi++){doc.text(qtyX,qy,lqty[qi],{size:8,align:'center'});qy-=11;}
+      doc.text(unitCostR,doc.y-13,Number(mat.uc)>0?fmtMoney(mat.uc):'—',{size:7.5,color:Number(mat.uc)>0?PDFC.DARK:PDFC.SOFT,align:'right'});
+      doc.text(costR,doc.y-13,Number(mat.c)>0?fmtMoney(mat.c):'—',{size:7.5,color:Number(mat.c)>0?PDFC.DARK:PDFC.SOFT,align:'right'});
+      doc.text(dispX,doc.y-13,mat.d?'Sí':'No',{size:7.5,bold:!!mat.d,color:mat.d?PDFC.GREEN:PDFC.SOFT,align:'center'});
+      doc.text(originX,doc.y-13,mat.o==='taller'?'Taller':'Externo',{size:7,align:'center'});
+      var py=doc.y-13;
+      for(var q=0;q<l2.length;q++){doc.text(provX,py,l2[q],{size:8.5,color:PDFC.MUT});py-=12;}
+      doc.line(M,doc.y-rh,W-M,doc.y-rh,PDFC.LINE,0.7);
+      doc.y-=rh;
     }
   }
-  doc.y-=10;
+  doc.y-=8;
+}
+
+/* ----- Desglose de costo y precio sugerido ----- */
+function drawCostSummary(doc,d){
+  var W=PDFC.W,M=PDFC.M,CW=W-2*M;
+  doc.ensure(108);
+  doc.text(M,doc.y-12,'DESGLOSE DEL COSTO',{size:11.5,bold:true,color:PDFC.ACCENT});
+  doc.line(M,doc.y-20,W-M,doc.y-20,PDFC.LINE,1);
+  doc.y-=32;
+  var rows=[['Materiales ('+(d.materiales||[]).length+' conceptos)',fmtMoney(d.materialesCosto!=null?d.materialesCosto:d.costo)]];
+  var laborLabel='Mano de obra';
+  if(Number(d.horas)>0)laborLabel+=' ('+d.horas+' h x '+fmtMoney(d.tarifa||0)+'/h)';
+  rows.push([laborLabel,fmtMoney(d.manoObra||0)]);
+  var extras=Array.isArray(d.gastos)?d.gastos:[];
+  if(extras.length){
+    for(var x=0;x<extras.length;x++)rows.push(['Gasto: '+(extras[x].n||'Adicional'),fmtMoney(extras[x].c||0)]);
+  }else rows.push(['Gastos adicionales',fmtMoney(d.gastosCosto||0)]);
+  for(var r=0;r<rows.length;r++){
+    var labelLines=wrapText(rows[r][0],9.5,false,CW-125);
+    var rowH=Math.max(20,labelLines.length*12+7);
+    doc.ensure(rowH);
+    var ry=doc.y-13;
+    for(var rl=0;rl<labelLines.length;rl++){doc.text(M+8,ry,labelLines[rl],{size:9.5});ry-=12;}
+    doc.text(W-M-8,doc.y-13,rows[r][1],{size:9.5,align:'right'});
+    doc.line(M,doc.y-rowH,W-M,doc.y-rowH,PDFC.LINE,0.6);
+    doc.y-=rowH;
+  }
+  doc.y-=3;
+  doc.line(M,doc.y,W-M,doc.y,PDFC.DARK,1);
+  doc.text(M+8,doc.y-15,'COSTO TOTAL DEL LOTE',{size:10,bold:true});
+  doc.text(W-M-8,doc.y-15,fmtMoney(d.costoTotal!=null?d.costoTotal:d.costo),{size:10,bold:true,align:'right'});
+  doc.y-=29;
+
+  doc.ensure(66);
+  var stats=[
+    ['COSTO POR PIEZA',Number(d.total)>0?fmtMoney(d.costoUnitario||0):'—'],
+    ['MARGEN OBJETIVO',d.margen==null?'Sin definir':String(d.margen)+'%'],
+    ['PRECIO SUGERIDO',Number(d.total)>0&&d.precioSugerido!=null?fmtMoney(d.precioSugerido):'—'],
+    ['GANANCIA BRUTA',Number(d.total)>0&&d.gananciaUnitaria!=null?fmtMoney(d.gananciaUnitaria):'—']
+  ];
+  var gap=7,bw=(CW-3*gap)/4,bh=47,top=doc.y;
+  for(var si=0;si<stats.length;si++){
+    var sx=M+si*(bw+gap),fill=si>=2?[0.925,0.970,0.950]:PDFC.LIGHT;
+    doc.rect(sx,top-bh,bw,bh,fill);
+    doc.text(sx+9,top-16,stats[si][0],{size:6.7,bold:true,color:si>=2?PDFC.GREEN:PDFC.MUT});
+    var statLines=wrapText(stats[si][1],9.5,true,bw-18);
+    for(var sl=0;sl<Math.min(2,statLines.length);sl++)doc.text(sx+9,top-33-sl*11,statLines[sl],{size:9.5,bold:true,color:si>=2?PDFC.GREEN:PDFC.DARK});
+  }
+  doc.y-=bh+15;
 }
 
 /* ----- Notas ----- */
@@ -573,6 +725,7 @@ function renderFicha(doc,d,full,topY){
   drawBoxes(doc,d,{alwaysCosto:!full});
   drawVariantes(doc,d);
   drawMateriales(doc,d);
+  drawCostSummary(doc,d);
   drawNotas(doc,d);
 }
 
@@ -676,9 +829,9 @@ var currentId=null;
 
 /* localStorage seguro (si el entorno lo bloquea, se usa memoria) */
 var store={mem:{},
-  get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return (k in this.mem)?this.mem[k]:d}},
-  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){this.mem[k]=v}},
-  del:function(k){try{localStorage.removeItem(k)}catch(e){delete this.mem[k]}}
+  get:function(k,d){try{var v=localStorage.getItem(k);return v===null?((k in this.mem)?this.mem[k]:d):JSON.parse(v)}catch(e){return (k in this.mem)?this.mem[k]:d}},
+  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));delete this.mem[k];return true}catch(e){this.mem[k]=v;return false}},
+  del:function(k){try{localStorage.removeItem(k)}catch(e){}delete this.mem[k];}
 };
 
 var TRASH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2"/><path d="M6.5 7l1 12a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1-12"/><path d="M10 11v6M14 11v6"/></svg>';
@@ -703,10 +856,18 @@ function addVariant(data){
 function addMaterial(data){
   data=data||{};
   var id=++radioSeq;
+  var legacy=(data.q===undefined&&data.uc===undefined);
+  var legacyTotal=Math.max(0,parseFloat(data.c)||0);
   var row=frag('<div class="mrow">'
     +'<div class="mline">'
-    +'<input class="m-nombre" type="text" placeholder="Nombre del material (ej. Lona cruda 12 oz)" autocomplete="off">'
+    +'<input class="m-nombre" type="text" aria-label="Nombre del material" placeholder="Material (ej. Lona cruda)" autocomplete="off">'
     +'<button class="del" type="button" title="Eliminar material" aria-label="Eliminar material">'+TRASH+'</button>'
+    +'</div>'
+    +'<div class="mcalc">'
+    +'<label class="mfield">Cantidad<input class="m-cantidad" type="number" min="0" step="any" inputmode="decimal" placeholder="1"></label>'
+    +'<label class="mfield">Unidad<input class="m-unidad" type="text" placeholder="m, kg, pza" autocomplete="off"></label>'
+    +'<label class="mfield">Costo unitario<div class="cost"><span>$</span><input class="m-costo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Costo unitario"></div></label>'
+    +'<div class="m-subtotal"><span>Importe</span><strong class="m-total">$0.00</strong></div>'
     +'</div>'
     +'<div class="mopts">'
     +'<label class="chk" title="¿Hay existencia de este material?">'
@@ -716,8 +877,7 @@ function addMaterial(data){
     +'<label class="opt"><input class="m-origen" type="radio" name="origen-'+id+'" value="taller"><span>Taller</span></label>'
     +'<label class="opt"><input class="m-origen" type="radio" name="origen-'+id+'" value="externo"><span>Externo</span></label>'
     +'</div>'
-    +'<div class="cost" title="Costo aproximado del material"><span>$</span><input class="m-costo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Costo"></div>'
-    +'<input class="m-proveedor" type="text" list="dl-proveedores" placeholder="Proveedor (ej. Telas MX)" autocomplete="off">'
+    +'<input class="m-proveedor" type="text" aria-label="Proveedor del material" list="dl-proveedores" placeholder="Proveedor (opcional)" autocomplete="off">'
     +'</div>'
     +'</div>');
   row.querySelector('.m-nombre').value=data.n||'';
@@ -725,56 +885,128 @@ function addMaterial(data){
   var origen=data.o||'externo';
   var r=row.querySelector('.m-origen[value="'+origen+'"]');
   (r||row.querySelector('.m-origen[value="externo"]')).checked=true;
-  row.querySelector('.m-costo').value=(data.c===undefined||data.c===null||data.c===0||data.c==='')?'':data.c;
+  row.querySelector('.m-cantidad').value=data.q==null?'1':data.q;
+  row.querySelector('.m-unidad').value=legacy&&legacyTotal>0?'lote':(data.u||'pza');
+  row.querySelector('.m-costo').value=legacy?(legacyTotal||''):(data.uc==null?'':data.uc);
   row.querySelector('.m-proveedor').value=data.pr||'';
   $('#mlist').appendChild(row);
 }
 
+function addExtra(data){
+  data=data||{};
+  var row=frag('<div class="xrow">'
+    +'<input class="x-concept" type="text" aria-label="Concepto del gasto adicional" placeholder="Concepto (ej. Empaque, envío)" autocomplete="off">'
+    +'<div class="cost" title="Costo total del concepto en el lote"><span>$</span><input class="x-costo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Costo del gasto"></div>'
+    +'<button class="del" type="button" title="Eliminar gasto" aria-label="Eliminar gasto">'+TRASH+'</button>'
+    +'</div>');
+  row.querySelector('.x-concept').value=data.n||'';
+  row.querySelector('.x-costo').value=data.c==null?'':data.c;
+  $('#elist').appendChild(row);
+}
+
 /* ---------- Datos ---------- */
+function numberValue(value){
+  var n=parseFloat(value);
+  return isFinite(n)&&n>0?n:0;
+}
+function roundMoney(value){return Math.round((Number(value)||0)*100)/100;}
 function collect(){
   var variantes=Array.prototype.map.call(document.querySelectorAll('#vlist .vrow'),function(r){
     return {n:r.querySelector('.v-nombre').value.trim(),
-            p:parseInt(r.querySelector('.v-piezas').value,10)||0};
+            p:Math.max(0,parseInt(r.querySelector('.v-piezas').value,10)||0)};
   });
   var materiales=Array.prototype.map.call(document.querySelectorAll('#mlist .mrow'),function(r){
     var chk=r.querySelector('.m-origen:checked');
+    var q=numberValue(r.querySelector('.m-cantidad').value);
+    var uc=numberValue(r.querySelector('.m-costo').value);
     return {n:r.querySelector('.m-nombre').value.trim(),
             d:r.querySelector('.m-disp').checked,
-            o:chk?chk.value:'externo',
-            c:Math.max(0,parseFloat(r.querySelector('.m-costo').value)||0),
+            o:chk?chk.value:'externo',q:q,
+            u:r.querySelector('.m-unidad').value.trim()||'pza',
+            uc:uc,c:roundMoney(q*uc),
             pr:r.querySelector('.m-proveedor').value.trim()};
   });
+  var gastos=Array.prototype.map.call(document.querySelectorAll('#elist .xrow'),function(r){
+    return {n:r.querySelector('.x-concept').value.trim(),c:roundMoney(numberValue(r.querySelector('.x-costo').value))};
+  });
   var tipo=document.querySelector('input[name="tipo"]:checked');
+  var marginValue=$('#margen').value;
   return {producto:$('#producto').value.trim(),
           tipo:tipo?tipo.value:'individual',
           tiempo:$('#tiempo').value.trim(),
           notas:$('#notas').value.trim(),
-          variantes:variantes,materiales:materiales};
+          variantes:variantes,materiales:materiales,gastos:gastos,
+          horas:numberValue($('#horas').value),
+          tarifa:numberValue($('#tarifa').value),
+          margen:marginValue===''?null:Math.max(0,Math.min(95,parseFloat(marginValue)||0))};
 }
 
-/* versión "limpia" para guardar/exportar: sin filas vacías */
+/* Normaliza datos nuevos y fichas antiguas antes de guardar/exportar. */
 function cleanedData(d){
-  var vs=(d.variantes||[]).filter(function(v){return v.n||v.p});
-  var ms=(d.materiales||[]).filter(function(m){return m.n||m.pr||m.c>0});
-  return {producto:d.producto,tipo:d.tipo,tiempo:d.tiempo,notas:d.notas,
-    variantes:vs,materiales:ms,
-    total:vs.reduce(function(a,v){return a+(v.p||0)},0),
-    costo:ms.reduce(function(a,m){return a+(m.c||0)},0)};
+  d=d||{};
+  var vs=(Array.isArray(d.variantes)?d.variantes:[]).map(function(v){
+    return {n:String(v.n||'').trim(),p:Math.max(0,parseInt(v.p,10)||0)};
+  }).filter(function(v){return v.n||v.p;});
+  var ms=(Array.isArray(d.materiales)?d.materiales:[]).map(function(m){
+    m=m||{};
+    var legacy=(m.q===undefined&&m.uc===undefined);
+    var oldCost=numberValue(m.c);
+    var q=legacy?1:numberValue(m.q);
+    var unit=legacy&&oldCost>0?'lote':(String(m.u||'pza').trim()||'pza');
+    var unitCost=legacy?oldCost:numberValue(m.uc);
+    var lineCost=legacy?oldCost:roundMoney(q*unitCost);
+    return {n:String(m.n||'').trim(),d:!!m.d,o:m.o==='taller'?'taller':'externo',
+      q:q,u:unit,uc:roundMoney(unitCost),c:roundMoney(lineCost),pr:String(m.pr||'').trim()};
+  }).filter(function(m){return m.n||m.pr||m.c>0;});
+  var extras=(Array.isArray(d.gastos)?d.gastos:[]).map(function(x){
+    x=x||{};return {n:String(x.n||'').trim(),c:roundMoney(numberValue(x.c))};
+  }).filter(function(x){return x.n||x.c>0;});
+  var total=vs.reduce(function(a,v){return a+v.p;},0);
+  var materialsCost=roundMoney(ms.reduce(function(a,m){return a+m.c;},0));
+  var hours=numberValue(d.horas),rate=roundMoney(numberValue(d.tarifa));
+  var laborCost=roundMoney(hours*rate);
+  var extrasCost=roundMoney(extras.reduce(function(a,x){return a+x.c;},0));
+  var totalCost=roundMoney(materialsCost+laborCost+extrasCost);
+  var unitCost=total>0?roundMoney(totalCost/total):0;
+  var margin=(d.margen===null||d.margen===undefined||d.margen==='')?null:Math.max(0,Math.min(95,parseFloat(d.margen)||0));
+  var suggested=margin===null||total===0?null:roundMoney(unitCost/(1-margin/100));
+  var profit=suggested===null?null:roundMoney(suggested-unitCost);
+  return {producto:String(d.producto||'').trim(),tipo:d.tipo||'individual',tiempo:String(d.tiempo||'').trim(),notas:String(d.notas||'').trim(),
+    variantes:vs,materiales:ms,gastos:extras,total:total,costo:materialsCost,
+    materialesCosto:materialsCost,horas:hours,tarifa:rate,manoObra:laborCost,gastosCosto:extrasCost,
+    costoTotal:totalCost,costoUnitario:unitCost,margen:margin,precioSugerido:suggested,gananciaUnitaria:profit};
 }
 
 function totalPiezas(){
   var t=0;
-  document.querySelectorAll('#vlist .v-piezas').forEach(function(i){t+=parseInt(i.value,10)||0});
+  document.querySelectorAll('#vlist .v-piezas').forEach(function(i){t+=Math.max(0,parseInt(i.value,10)||0)});
   return t;
 }
 function updateTotal(){$('#totalPiezas').textContent=String(totalPiezas());}
-function costoTotal(){
+function updateCosto(){
   var t=0;
-  document.querySelectorAll('#mlist .m-costo').forEach(function(i){t+=Math.max(0,parseFloat(i.value)||0)});
-  return t;
+  document.querySelectorAll('#mlist .mrow').forEach(function(row){
+    var q=numberValue(row.querySelector('.m-cantidad').value);
+    var uc=numberValue(row.querySelector('.m-costo').value);
+    var line=roundMoney(q*uc);
+    t+=line;
+    row.querySelector('.m-total').textContent=fmtMoney(line);
+  });
+  $('#costoMateriales').textContent=fmtMoney(t);
 }
-function updateCosto(){$('#costoMateriales').textContent=fmtMoney(costoTotal());}
-function updateTotals(){updateTotal();updateCosto();}
+function updateCostSummary(){
+  var d=cleanedData(collect());
+  $('#costoManoObra').textContent=fmtMoney(d.manoObra);
+  $('#costoExtras').textContent=fmtMoney(d.gastosCosto);
+  $('#resMateriales').textContent=fmtMoney(d.materialesCosto);
+  $('#resManoObra').textContent=fmtMoney(d.manoObra);
+  $('#resExtras').textContent=fmtMoney(d.gastosCosto);
+  $('#resTotal').textContent=fmtMoney(d.costoTotal);
+  $('#resUnitario').textContent=d.total?fmtMoney(d.costoUnitario):'—';
+  $('#precioSugerido').textContent=d.total&&d.precioSugerido!==null?fmtMoney(d.precioSugerido):'—';
+  $('#gananciaUnit').textContent=d.total&&d.gananciaUnitaria!==null?fmtMoney(d.gananciaUnitaria):'—';
+}
+function updateTotals(){updateTotal();updateCosto();updateCostSummary();}
 
 /* ---------- Proveedores (autocompletado) ---------- */
 function updateProvDatalist(){
@@ -812,11 +1044,12 @@ function toast(msg,type){
 }
 
 /* ---------- Fichas guardadas ---------- */
-function getFichas(){return store.get(FKEY,[]);}
-function setFichas(a){store.set(FKEY,a);updateCount();}
+function getFichas(){var a=store.get(FKEY,[]);return Array.isArray(a)?a:[];}
+function setFichas(a){var persisted=store.set(FKEY,a);updateCount();return persisted;}
 function updateCount(){
-  $('#hdrCount').textContent=String(getFichas().length);
-  $('#fTitle').textContent='Mis fichas ('+getFichas().length+')';
+  var count=getFichas().length;
+  $('#hdrCount').textContent=String(count);
+  $('#fTitle').textContent='Mis fichas ('+count+')';
 }
 function fmtFecha(iso){return new Date(iso).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});}
 function fmtHora(iso){return new Date(iso).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
@@ -840,9 +1073,11 @@ function saveFicha(){
     currentId='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
     fichas.unshift({id:currentId,fecha:new Date().toISOString(),data:clean});
   }
-  setFichas(fichas);
+  clearTimeout(saveT);
+  var persisted=setFichas(fichas);
   store.set(KEY,{d:d,fid:currentId});
-  toast(idx>=0?'Ficha actualizada ✓':'Ficha guardada ✓');
+  if(persisted)toast(idx>=0?'Ficha actualizada ✓':'Ficha guardada ✓');
+  else toast('No se pudo guardar de forma permanente; solo estará en esta sesión','err');
 }
 
 function loadFicha(f){
@@ -851,11 +1086,15 @@ function loadFicha(f){
   $('#producto').value=d.producto||'';
   $('#tiempo').value=d.tiempo||'';
   $('#notas').value=d.notas||'';
+  $('#horas').value=d.horas||'';
+  $('#tarifa').value=d.tarifa||'';
+  $('#margen').value=d.margen===null||d.margen===undefined?'':d.margen;
   var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
   if(tr)tr.checked=true;
-  $('#vlist').innerHTML='';$('#mlist').innerHTML='';
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';
   (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
   (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
+  (d.gastos||[]).forEach(function(x){addExtra(x)});
   updateTotals();
   updateProvDatalist();
   store.set(KEY,{d:collect(),fid:currentId});
@@ -876,20 +1115,24 @@ function deleteFicha(id,btn){
 function renderFichasList(){
   var box=$('#fList');
   box.innerHTML='';
-  var fichas=getFichas();
+  var all=getFichas();
+  var query=$('#searchFichas').value.trim().toLocaleLowerCase();
+  var fichas=all.filter(function(f){return !query||String((f.data||{}).producto||'').toLocaleLowerCase().indexOf(query)>=0;});
   if(!fichas.length){
+    var message=all.length?'No hay productos que coincidan con la búsqueda.':'Aún no hay fichas guardadas.';
+    var helper=all.length?'Prueba con otro nombre.':'Captura una ficha y toca <b>Guardar</b>.';
     box.innerHTML='<div class="fempty">'
       +'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>'
-      +'<div>Aún no hay fichas guardadas.</div>'
-      +'<div style="margin-top:4px">Captura una ficha y toca <b>Guardar</b>.</div></div>';
+      +'<div>'+message+'</div>'
+      +'<div style="margin-top:4px">'+helper+'</div></div>';
     return;
   }
   var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
   fichas.forEach(function(f){
-    var d=f.data||{};
+    var d=cleanedData(f.data||{});
     var meta=(fmtFecha(f.fecha)||'')+' · '+(tipoLabels[d.tipo]||'Individual')
-      +' · '+(d.total||0)+' piezas'
-      +(d.costo>0?' · '+fmtMoney(d.costo):'');
+      +' · '+d.total+' piezas · '+fmtMoney(d.costoTotal)+' total'
+      +(d.costoUnitario>0?' · '+fmtMoney(d.costoUnitario)+'/pieza':'');
     var item=frag('<div class="fitem">'
       +'<div class="finfo"><div class="fname"></div><div class="fmeta"></div></div>'
       +'<div class="facts">'
@@ -902,7 +1145,7 @@ function renderFichasList(){
     item.querySelector('.act-abrir').addEventListener('click',function(){loadFicha(f)});
     item.querySelector('.act-pdf').addEventListener('click',function(){
       var dt=new Date(f.fecha);
-      var data=Object.assign({},d,{fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha)});
+      var data=Object.assign({},cleanedData(d),{fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha)});
       var bytes=buildPdfBytes(data);
       var blob=new Blob([bytes],{type:'application/pdf'});
       downloadBlob(blob,'ficha-'+slug(d.producto)+'-'+dt.toISOString().slice(0,10)+'.pdf');
@@ -979,7 +1222,7 @@ function exportAllPdf(){
   if(!fichas.length){toast('Aún no hay fichas guardadas','err');return;}
   var now=new Date();
   var list=fichas.map(function(f,i){
-    return Object.assign({},f.data,{
+    return Object.assign({},cleanedData(f.data||{}),{
       fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha),
       _idx:i+1,_tot:fichas.length
     });
@@ -989,39 +1232,94 @@ function exportAllPdf(){
       fecha:now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}),
       hora:now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})});
     var blob=new Blob([bytes],{type:'application/pdf'});
-    downloadBlob(blob,'catalogo-fichas-'+now.toISOString().slice(0,10)+'.pdf');
-    toast('Catálogo con '+list.length+' ficha'+(list.length!==1?'s':'')+' ✓');
+    downloadBlob(blob,'catalogo-productos-'+now.toISOString().slice(0,10)+'.pdf');
+    toast('Catálogo con '+list.length+' producto'+(list.length!==1?'s':'')+' ✓');
   }catch(err){
     console.error(err);
     toast('No se pudo generar el catálogo','err');
   }
 }
 function csvCell(v){
-  return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  var text=String(v==null?'':v).replace(/"/g,'""');
+  if(/^\s*[=+\-@]/.test(text))text="'"+text;
+  return '"'+text+'"';
 }
 function exportCsv(){
   var fichas=getFichas();
   if(!fichas.length){toast('Aún no hay fichas guardadas','err');return;}
-  var rows=[['Producto','Tipo','Tiempo estimado','Total piezas','Costo materiales','Variantes','Materiales','Proveedores','Notas','Fecha guardada']];
+  var rows=[['Producto','Tipo','Tiempo estimado','Piezas del lote','Costo materiales (lote)','Mano de obra (lote)','Gastos adicionales (lote)','Costo total (lote)','Costo por pieza','Margen objetivo (%)','Precio sugerido por pieza','Variantes','Detalle de materiales','Gastos','Proveedores','Notas','Fecha guardada']];
   var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
   fichas.forEach(function(f){
-    var d=f.data||{};
-    var variantes=(d.variantes||[]).map(function(v){return (v.n||'—')+': '+(v.p||0)}).join('; ');
-    var materiales=(d.materiales||[]).map(function(m){
-      return (m.n||'—')+' ('+(m.d?'disponible':'no disponible')+', '+(m.o==='taller'?'taller':'externo')
-        +(m.c>0?', '+fmtMoney(m.c):'')+(m.pr?', '+m.pr:'')+')';
+    var d=cleanedData(f.data||{});
+    var variantes=d.variantes.map(function(v){return (v.n||'Sin nombre')+': '+v.p}).join('; ');
+    var materiales=d.materiales.map(function(m){
+      return (m.n||'Material')+' ['+m.q+' '+m.u+' x '+fmtMoney(m.uc)+' = '+fmtMoney(m.c)
+        +'; '+(m.d?'disponible':'no disponible')+'; '+(m.o==='taller'?'taller':'externo')
+        +(m.pr?'; '+m.pr:'')+']';
     }).join('; ');
+    var gastos=d.gastos.map(function(x){return (x.n||'Gasto')+': '+fmtMoney(x.c)}).join('; ');
     var provs=[];
-    (d.materiales||[]).forEach(function(m){if(m.pr&&provs.indexOf(m.pr)<0)provs.push(m.pr)});
-    rows.push([d.producto||'',tipoLabels[d.tipo]||'Individual',d.tiempo||'',
-      d.total||0,d.costo>0?fmtMoney(d.costo):'',
-      variantes,materiales,provs.join('; '),d.notas||'',
+    d.materiales.forEach(function(m){if(m.pr&&provs.indexOf(m.pr)<0)provs.push(m.pr)});
+    rows.push([d.producto,tipoLabels[d.tipo]||'Individual',d.tiempo,d.total,
+      d.materialesCosto.toFixed(2),d.manoObra.toFixed(2),d.gastosCosto.toFixed(2),
+      d.costoTotal.toFixed(2),d.total?d.costoUnitario.toFixed(2):'',
+      d.margen==null?'':d.margen,d.precioSugerido==null?'':d.precioSugerido.toFixed(2),
+      variantes,materiales,gastos,provs.join('; '),d.notas,
       fmtFecha(f.fecha)+' '+fmtHora(f.fecha)]);
   });
   var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n');
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  downloadBlob(blob,'fichas-'+new Date().toISOString().slice(0,10)+'.csv');
-  toast('CSV con '+fichas.length+' ficha'+(fichas.length!==1?'s':'')+' ✓');
+  downloadBlob(blob,'productos-'+new Date().toISOString().slice(0,10)+'.csv');
+  toast('CSV con '+fichas.length+' producto'+(fichas.length!==1?'s':'')+' ✓');
+}
+
+function exportBackup(){
+  var fichas=getFichas();
+  if(!fichas.length){toast('Aún no hay fichas para respaldar','err');return;}
+  var now=new Date();
+  var backup={app:'Ficha de Producto',version:2,exportado:now.toISOString(),fichas:fichas};
+  var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json;charset=utf-8'});
+  downloadBlob(blob,'respaldo-productos-'+now.toISOString().slice(0,10)+'.json');
+  toast('Respaldo JSON descargado ✓');
+}
+function importBackupFile(file){
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var parsed=JSON.parse(String(reader.result||''));
+      var incoming=Array.isArray(parsed)?parsed:parsed&&parsed.fichas;
+      if(!Array.isArray(incoming))throw new Error('Formato inválido');
+      var items=incoming.filter(function(f){return f&&typeof f==='object'&&(f.data||f.producto);});
+      if(!items.length)throw new Error('No se encontraron productos en el respaldo');
+      if(!window.confirm('Se agregarán '+items.length+' ficha'+(items.length!==1?'s':'')+'. Si un respaldo tiene el mismo identificador que una ficha actual, esta se actualizará. ¿Continuar?'))return;
+      var fichas=getFichas(),added=0,updated=0,now=new Date().toISOString();
+      items.forEach(function(item){
+        var rawData=item.data||item;
+        var clean=cleanedData(rawData);
+        if(!clean.producto)return;
+        var id=String(item.id||'');
+        if(!id)id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+        var idx=fichas.findIndex(function(f){return f.id===id;});
+        var fecha=item.fecha&&isFinite(new Date(item.fecha).getTime())?new Date(item.fecha).toISOString():now;
+        if(idx>=0){fichas[idx].data=clean;fichas[idx].act=now;updated++;}
+        else{fichas.push({id:id,fecha:fecha,data:clean});added++;}
+      });
+      fichas.sort(function(a,b){return new Date(b.fecha||0)-new Date(a.fecha||0)});
+      if(!added&&!updated)throw new Error('El respaldo no contiene productos válidos');
+      var persisted=setFichas(fichas);
+      renderFichasList();
+      if(persisted)toast('Importadas '+added+' y actualizadas '+updated+' ficha'+(added+updated!==1?'s':'')+' ✓');
+      else toast('Se importaron en esta sesión, pero no se pudieron guardar localmente','err');
+    }catch(err){
+      console.error(err);
+      toast('No se pudo leer el respaldo JSON','err');
+    }finally{
+      $('#importBackup').value='';
+    }
+  };
+  reader.onerror=function(){toast('No se pudo leer el archivo','err');$('#importBackup').value='';};
+  reader.readAsText(file);
 }
 
 /* ---------- Modal PDF ---------- */
@@ -1041,16 +1339,18 @@ var btnNueva=$('#btnNueva');
 function disarm(){armed=false;clearTimeout(armT);btnNueva.classList.remove('warn');btnNueva.textContent='Nueva';}
 btnNueva.addEventListener('click',function(){
   if(!armed){
-    armed=true;btnNueva.classList.add('warn');btnNueva.textContent='¿Borrar todo? Toca de nuevo';
+    armed=true;btnNueva.classList.add('warn');btnNueva.textContent='¿Descartar?';
     armT=setTimeout(disarm,3500);
     return;
   }
   disarm();
+  clearTimeout(saveT);
   store.del(KEY);
   currentId=null;
   $('#producto').value='';$('#tiempo').value='';$('#notas').value='';
+  $('#horas').value='';$('#tarifa').value='';$('#margen').value='';
   document.querySelector('input[name="tipo"][value="individual"]').checked=true;
-  $('#vlist').innerHTML='';$('#mlist').innerHTML='';
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';
   addVariant();addMaterial();
   updateTotals();
   toast('Nueva ficha lista');
@@ -1061,20 +1361,30 @@ $('#btnAddVar').addEventListener('click',function(){addVariant();save();
   var rows=document.querySelectorAll('.v-nombre');if(rows.length)rows[rows.length-1].focus();});
 $('#btnAddMat').addEventListener('click',function(){addMaterial();save();
   var rows=document.querySelectorAll('.m-nombre');if(rows.length)rows[rows.length-1].focus();});
+$('#btnAddExtra').addEventListener('click',function(){addExtra();save();
+  var rows=document.querySelectorAll('.x-concept');if(rows.length)rows[rows.length-1].focus();});
 
-$('#vlist').addEventListener('input',function(){updateTotal();save();});
+$('#vlist').addEventListener('input',function(){updateTotal();updateCostSummary();save();});
 $('#vlist').addEventListener('click',function(e){
   var b=e.target.closest('.del');
-  if(b){b.closest('.vrow').remove();updateTotal();save();}
+  if(b){b.closest('.vrow').remove();updateTotal();updateCostSummary();save();}
 });
-$('#mlist').addEventListener('input',function(){updateCosto();save();});
+$('#mlist').addEventListener('input',function(){updateCosto();updateCostSummary();save();});
 $('#mlist').addEventListener('click',function(e){
   var b=e.target.closest('.del');
-  if(b){b.closest('.mrow').remove();updateCosto();save();}
+  if(b){b.closest('.mrow').remove();updateCosto();updateCostSummary();save();}
+});
+$('#elist').addEventListener('input',function(){updateCostSummary();save();});
+$('#elist').addEventListener('click',function(e){
+  var b=e.target.closest('.del');
+  if(b){b.closest('.xrow').remove();updateCostSummary();save();}
 });
 $('#producto').addEventListener('input',save);
 $('#tiempo').addEventListener('input',save);
 $('#notas').addEventListener('input',save);
+$('#horas').addEventListener('input',function(){updateCostSummary();save();});
+$('#tarifa').addEventListener('input',function(){updateCostSummary();save();});
+$('#margen').addEventListener('input',function(){updateCostSummary();save();});
 document.querySelectorAll('input[name="tipo"]').forEach(function(r){r.addEventListener('change',save)});
 
 $('#btnGuardar').addEventListener('click',saveFicha);
@@ -1091,6 +1401,10 @@ $('#fClose').addEventListener('click',closeFichas);
 $('#fOverlay').addEventListener('click',function(e){if(e.target===this)closeFichas()});
 $('#btnExpPdf').addEventListener('click',exportAllPdf);
 $('#btnExpCsv').addEventListener('click',exportCsv);
+$('#btnExpJson').addEventListener('click',exportBackup);
+$('#btnImpJson').addEventListener('click',function(){$('#importBackup').click();});
+$('#importBackup').addEventListener('change',function(){importBackupFile(this.files&&this.files[0]);});
+$('#searchFichas').addEventListener('input',renderFichasList);
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){closeModal();closeFichas();}
 });
@@ -1124,10 +1438,14 @@ bi.addEventListener('click',function(){
     $('#producto').value=d.producto||'';
     $('#tiempo').value=d.tiempo||'';
     $('#notas').value=d.notas||'';
+    $('#horas').value=d.horas||'';
+    $('#tarifa').value=d.tarifa||'';
+    $('#margen').value=d.margen===null||d.margen===undefined?'':d.margen;
     var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
     if(tr)tr.checked=true;
     (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
     (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
+    (d.gastos||[]).forEach(function(x){addExtra(x)});
   }else{
     addVariant();addMaterial();
   }
@@ -1140,4 +1458,3 @@ bi.addEventListener('click',function(){
 </script>
 </body>
 </html>
-ml>

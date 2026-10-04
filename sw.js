@@ -1,5 +1,5 @@
 /* Service worker: Ficha de Producto — caché offline */
-const CACHE = 'ficha-producto-v2';
+const CACHE = 'ficha-producto-v3';
 const ASSETS = [
   './',
   './index.html',

@@ -1,7 +1,7 @@
 {
   "name": "Ficha de Producto",
   "short_name": "Ficha",
-  "description": "Captura fichas de producto con variantes, materiales y proveedores, y expórtalas a PDF.",
+  "description": "Desglosa costos, guarda fichas de producto y exporta un catálogo en PDF.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
