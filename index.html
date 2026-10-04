@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ficha de Producto</title>
-<meta name="description" content="Desglosa costos por producto, calcula costo por pieza y precio sugerido, guarda tus fichas y expórtalas a PDF. Funciona sin internet.">
+<meta name="description" content="Desglosa costos por producto, reparte tus costos fijos, calcula costo por pieza y precio sugerido, guarda tus fichas y expórtalas a PDF. Funciona sin internet.">
 <meta name="theme-color" content="#4f46e5">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -15,19 +15,20 @@
 <style>
 :root{
   --bg:#eef1f6; --card:#ffffff; --ink:#111827; --mut:#5b6577; --line:#dde4ee;
-  --acc:#4f46e5; --accd:#4338ca; --soft:#eef2ff; --err:#dc2626;
+  --acc:#4f46e5; --accd:#4338ca; --soft:#eef2ff; --err:#dc2626; --ok:#047857;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{
   background:var(--bg); color:var(--ink);
   font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  -webkit-font-smoothing:antialiased; padding-bottom:96px;
+  -webkit-font-smoothing:antialiased; padding-bottom:28px;
 }
+body.in-form{padding-bottom:126px}
 .wrap{max-width:780px;margin:0 auto;padding:0 16px}
 
 /* ---------- Header ---------- */
-header.top{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;padding:20px 0 24px;margin-bottom:18px}
+header.top{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 0 22px;margin-bottom:18px}
 .trow{display:flex;align-items:center;gap:12px}
 .logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
 h1{font-size:19px;margin:0;font-weight:750;letter-spacing:.01em}
@@ -35,7 +36,7 @@ h1{font-size:19px;margin:0;font-weight:750;letter-spacing:.01em}
 .pill{
   background:#fff;color:var(--acc);border:none;border-radius:999px;
   padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;
-  display:flex;gap:6px;align-items:center;flex:none;
+  display:flex;gap:6px;align-items:center;flex:none;font-family:inherit;
 }
 .pill:active{transform:scale(.97)}
 #btnFichas{margin-left:auto}
@@ -48,26 +49,69 @@ h1{font-size:19px;margin:0;font-weight:750;letter-spacing:.01em}
 }
 
 /* ---------- Cards ---------- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
 .card h2{margin:0 0 4px;font-size:15px;font-weight:750;display:flex;align-items:center;gap:8px}
 .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--acc);flex:none}
+.stepnum{width:22px;height:22px;border-radius:50%;background:var(--soft);color:var(--accd);font-size:12px;font-weight:800;display:grid;place-items:center;flex:none;border:1px solid #dfe4ff}
 .hint{font-size:12.5px;color:var(--mut);margin:0 0 12px}
+
+/* ---------- View bar (volver) ---------- */
+.viewbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.backbtn{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:#fff;color:#4b5568;border-radius:999px;padding:9px 15px;font:inherit;font-size:13px;font-weight:750;cursor:pointer;flex:none}
+.backbtn:hover{border-color:#b9c3d6}
+.backbtn:active{transform:scale(.97)}
+.viewbar .vtitle{font-size:16.5px;font-weight:800;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Home: acciones grandes ---------- */
+.bigactions{display:grid;gap:12px;margin-bottom:14px}
+.bigaction{display:flex;align-items:center;gap:14px;text-align:left;border-radius:18px;padding:18px 16px;cursor:pointer;border:1.5px solid var(--line);background:#fff;font:inherit;color:var(--ink);transition:transform .12s, box-shadow .15s, border-color .15s;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.bigaction:active{transform:scale(.985)}
+.bigaction .bico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--soft);color:var(--accd)}
+.bigaction .btxt{min-width:0}
+.bigaction .bttl{font-size:16.5px;font-weight:800;display:block}
+.bigaction .bdesc{font-size:12.5px;color:var(--mut);margin-top:2px;display:block}
+.bigaction .go{margin-left:auto;color:#9aa4b8;flex:none}
+.bigaction.primary{background:linear-gradient(135deg,#4f46e5,#4338ca);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(67,56,202,.28)}
+.bigaction.primary .bico{background:rgba(255,255,255,.18);color:#fff}
+.bigaction.primary .bdesc{color:#dfe2ff}
+.bigaction.primary .go{color:rgba(255,255,255,.75)}
+.bigaction:hover{border-color:#c3cbe0}
+.bigaction.primary:hover{border-color:transparent}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:650;color:#3f4a5f;display:flex;gap:6px;align-items:center}
+.chip b{color:var(--accd);font-variant-numeric:tabular-nums}
+
+.fijos-resumen{display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:4px 0 12px}
+.fijos-resumen .fv{font-size:19px;font-weight:800;color:var(--accd);font-variant-numeric:tabular-nums}
+.fijos-resumen .ft{font-size:12px;color:var(--mut);font-weight:650}
+
+.linkrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.linkbtn{border:none;background:none;color:var(--acc);font:inherit;font-size:13px;font-weight:750;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:5px}
+.linkbtn:hover{text-decoration:underline}
+
+.ritem{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.ritem:last-child{border-bottom:none;padding-bottom:2px}
+.rinfo{flex:1;min-width:0}
+.rname{font-weight:700;font-size:14px;word-break:break-word}
+.rmeta{font-size:12px;color:var(--mut);margin-top:2px}
 
 /* ---------- Inputs ---------- */
 label.fl{display:block;font-size:11.5px;font-weight:750;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
 .formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .formgrid .cost{margin-top:0;width:100%;min-height:44px}
 .formgrid .cost input{flex:1;width:0;min-width:0;min-height:36px;font-size:14.5px}
-input[type=text],input[type=number],input[type=search],textarea{
+input[type=text],input[type=number],input[type=search],textarea,select{
   width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;
   font:inherit;font-size:14.5px;background:#fff;color:var(--ink);outline:none;
   transition:border-color .15s, box-shadow .15s;min-height:44px;
 }
-input[type=text]:focus,input[type=number]:focus,input[type=search]:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+input[type=text]:focus,input[type=number]:focus,input[type=search]:focus,textarea:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
 input::placeholder,textarea::placeholder{color:#9aa4b8}
 textarea{min-height:84px;resize:vertical}
 input[type=number]{-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+select{appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1.5l5 5 5-5" stroke="%235b6577" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
 
 /* ---------- Segmented ---------- */
 .seg{display:flex;background:#e9edf5;border-radius:12px;padding:4px;gap:4px}
@@ -113,7 +157,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .xrow .cost{width:100%}
 .xrow .cost input{flex:1;width:0;min-width:0}
 .minor-title{font-size:13px;font-weight:750;margin:16px 0 2px}
-.cost-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:12px 0 14px}
+.cost-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 14px}
 .sum-item{padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#f8faff;min-width:0}
 .sum-item span{display:block;color:var(--mut);font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.035em}
 .sum-item strong{display:block;margin-top:3px;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
@@ -124,22 +168,42 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .price-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
 .price-summary .sum-item{background:#fff}
 .price-summary .sum-item.recommended{background:#ecfdf5;border-color:#a7f3d0}
-.price-summary .sum-item.recommended strong{color:#047857}
+.price-summary .sum-item.recommended strong{color:var(--ok)}
 
 .del{width:38px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:#8b95a9;display:grid;place-items:center;cursor:pointer;transition:all .15s;padding:0}
 .del:hover{border-color:#fca5a5;color:var(--err);background:#fef2f2}
 
-.addbtn{width:100%;border:1.5px dashed #c3cbe0;background:transparent;color:var(--acc);border-radius:12px;padding:11px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.addbtn{width:100%;border:1.5px dashed #c3cbe0;background:transparent;color:var(--acc);border-radius:12px;padding:12px;font:inherit;font-size:14px;font-weight:750;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
 .addbtn:hover{background:var(--soft);border-color:var(--acc)}
+.addbtn.soft{border-style:solid;border-color:var(--line);color:#4b5568;font-weight:650;font-size:13px;padding:10px}
+.addbtn.soft:hover{border-color:#b9c3d6;background:#f6f8fc}
+.addbtn+.addbtn.soft{margin-top:8px}
 
 .totalbar{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border:1px solid #dfe4ff;border-radius:12px;padding:12px 14px;margin-top:12px}
 .totalbar .tl{font-size:13px;font-weight:750;color:var(--accd)}
 .totalbar .tv{font-size:20px;font-weight:800;color:var(--accd);font-variant-numeric:tabular-nums}
 .totalbar .tv small{font-size:12px;font-weight:650}
 
+/* ---------- Costos fijos (vista) ---------- */
+.fijo-add{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(96px,.8fr) minmax(118px,.95fr) 46px;gap:8px;align-items:end;margin-bottom:14px}
+.addicon{width:46px;min-height:44px;border:none;border-radius:10px;background:var(--acc);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
+.addicon:hover{background:var(--accd)}
+.addicon:active{transform:scale(.97)}
+.fijo-row{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;background:#fbfcfe}
+.fijo-info{flex:1;min-width:0}
+.fijo-name{font-weight:700;font-size:14px;word-break:break-word}
+.fijo-detail{font-size:12px;color:var(--mut);margin-top:2px}
+.fijo-month{font-weight:800;color:var(--accd);font-size:14.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fijo-month small{display:block;font-size:9.5px;color:var(--mut);font-weight:750;text-transform:uppercase;text-align:right}
+.tipcard{background:#f8faff;border:1px dashed #c3cbe0}
+.tipcard ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--mut)}
+.tipcard li{margin-bottom:4px}
+
 /* ---------- Barra de acciones ---------- */
-.actions{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:40}
-.actions .inner{max-width:780px;margin:0 auto;display:flex;gap:8px}
+.actions{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:8px 16px calc(10px + env(safe-area-inset-bottom));z-index:40}
+.actions .inner{max-width:780px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap}
+.actioninfo{width:100%;display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--mut);font-weight:650;padding:1px 0 4px}
+.actioninfo b{color:var(--accd);font-variant-numeric:tabular-nums}
 .btn{display:flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:12px;padding:13px 12px;font:inherit;font-size:14.5px;font-weight:750;cursor:pointer;transition:all .15s;white-space:nowrap}
 .btn:active{transform:scale(.98)}
 .btn.primary{background:var(--acc);color:#fff;flex:1.5}
@@ -151,6 +215,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .btn.ghost.warn{border-color:var(--err);color:var(--err);background:#fef2f2}
 .btn.iconbtn{flex:0 0 50px;padding:12px 0}
 .btn.mini{padding:8px 12px;font-size:12.5px;border-radius:10px;flex:none}
+.btn[disabled]{opacity:.45;pointer-events:none}
 .lbl-short{display:none}
 @media (max-width:560px){
   .mcalc{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -158,6 +223,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .mopts .m-proveedor{min-width:100%;flex-basis:100%}
   .mopts .seg{flex:1}
   .cost-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fijo-add{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 46px}
+  .fijo-add .fa-concept{grid-column:1/-1}
 }
 @media (max-width:420px){
   .btn{font-size:13px;padding:12px 8px}
@@ -172,29 +239,48 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .overlay{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;z-index:60;padding:14px}
 .overlay.open{display:grid;place-items:center}
 .sheet{background:#fff;border-radius:16px;width:min(780px,100%);height:min(90vh,920px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
-.sheet.listas{height:min(84vh,760px)}
+.sheet.auto{height:auto;max-height:min(86vh,780px)}
+.sheet.choice{width:min(430px,100%)}
 .shead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .shead .st{font-weight:750;font-size:14px;margin-right:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shead .btn{text-decoration:none}
 .x{width:36px;height:36px;border:1.5px solid var(--line);background:#fff;border-radius:10px;color:#4b5568;display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
 .x:hover{border-color:#b9c3d6}
 .sheet iframe{flex:1;border:0;width:100%;background:#525659}
-.flist{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
-.fitem{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;flex-wrap:wrap}
+
+/* ---------- Catálogo ---------- */
+.cat-search{margin-bottom:14px}
+.cat-search input{min-height:42px}
+.cat-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fitem{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;flex-wrap:wrap;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .finfo{min-width:180px;flex:1}
 .fname{font-weight:750;font-size:14.5px;word-break:break-word}
 .fmeta{font-size:12px;color:var(--mut);margin-top:3px}
-.facts{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
+.facts{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none;flex-wrap:wrap}
 .fbt{border:none;background:var(--soft);color:var(--accd);border-radius:9px;padding:8px 12px;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer}
 .fbt.alt{background:#f6f8fc;border:1.5px solid var(--line);color:#4b5568}
+.fbt.fijos{background:#fff7ed;border:1.5px solid #fed7aa;color:#c2570b}
 .fdel{background:#fff;border:1.5px solid var(--line);color:#8b95a9;border-radius:9px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;padding:0}
 .fdel:hover{border-color:#fca5a5;color:var(--err)}
 .fdel.armed{width:auto;padding:0 10px;background:var(--err);border-color:var(--err);color:#fff;font-size:12px;font-weight:750}
-.fempty{padding:44px 12px;text-align:center;color:var(--mut);font-size:13.5px}
+.fempty{padding:44px 12px;text-align:center;color:var(--mut);font-size:13.5px;background:#fff;border:1.5px dashed var(--line);border-radius:14px}
 .fempty svg{opacity:.4;margin-bottom:10px}
-.fsearch{padding:12px 14px 0}
-.fsearch input{min-height:40px}
 .file-input{display:none}
+
+/* ---------- Sheet: asignar gastos fijos ---------- */
+.alloc-sub{margin:10px 14px 0;font-size:12.5px}
+.alloc-body{flex:1;overflow-y:auto;padding:12px 14px;-webkit-overflow-scrolling:touch}
+.alloc-row{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fbfcfe}
+.alloc-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.alloc-name{font-weight:700;font-size:13.5px}
+.alloc-month{font-size:11.5px;color:var(--mut);font-weight:650}
+.alloc-input{margin-top:8px}
+.alloc-input input{flex:1;width:0;min-width:0}
+.alloc-foot{display:flex;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.alloc-foot .btn.primary{flex:1.4}
+.choice-body{padding:16px;display:grid;gap:9px}
+.choice-body p{margin:0 0 6px;font-size:13.5px;color:var(--mut)}
+.choice-body p b{color:var(--ink)}
 
 /* ---------- Toast ---------- */
 .toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);background:#111827;color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:650;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:88vw;text-align:center}
@@ -220,7 +306,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
     <button id="btnFichas" class="pill" type="button">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>
-      <span class="hlbl">Mis fichas</span>
+      <span class="hlbl">Catálogo</span>
       <span class="badge" id="hdrCount">0</span>
     </button>
     <button id="btnInstalar" class="pill" hidden type="button">
@@ -230,11 +316,187 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   </div>
 </header>
 
-<main class="wrap">
+<!-- ================================================================
+     VISTA: INICIO
+     ================================================================ -->
+<main class="wrap" id="viewHome">
 
-  <!-- ============ DATOS GENERALES ============ -->
+  <div class="chips">
+    <div class="chip">📦 <b id="chipCount">0</b>&nbsp;productos</div>
+    <div class="chip">🏠 <b id="chipFijos">$0.00</b>&nbsp;en costos fijos/mes</div>
+    <div class="chip" id="chipLastWrap" hidden>🕒 Último: <b id="chipLast">—</b></div>
+  </div>
+
+  <div class="bigactions">
+    <button class="bigaction primary" id="btnHomeAdd" type="button">
+      <span class="bico">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="btxt">
+        <span class="bttl">Agregar producto</span>
+        <span class="bdesc">Crea una ficha completa: materiales, mano de obra, costos fijos y precio sugerido.</span>
+      </span>
+      <span class="go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+    </button>
+    <button class="bigaction" id="btnHomeCatalog" type="button">
+      <span class="bico">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v4H4z"/><path d="M4 12h16v4H4z"/><path d="M7 7h.01M7 14h.01"/></svg>
+      </span>
+      <span class="btxt">
+        <span class="bttl">Ver catálogo</span>
+        <span class="bdesc" id="catDesc">Consulta, edita y exporta tus productos guardados.</span>
+      </span>
+      <span class="go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+    </button>
+  </div>
+
+  <section class="card" id="cardDraft" hidden>
+    <h2><span class="dot"></span>Borrador en curso</h2>
+    <div class="ritem" style="border:none;padding:8px 0 2px">
+      <div class="rinfo">
+        <div class="rname" id="draftName">—</div>
+        <div class="rmeta">Tienes una ficha sin terminar. Puedes retomarla donde la dejaste.</div>
+      </div>
+      <button class="fbt" id="btnDraftGo" type="button">Continuar</button>
+    </div>
+  </section>
+
   <section class="card">
-    <h2><span class="dot"></span>Datos generales</h2>
+    <div class="linkrow">
+      <h2><span class="dot"></span>Costos fijos del negocio</h2>
+      <button class="linkbtn" id="btnHomeFijos" type="button">Administrar
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <p class="hint">Renta, luz, internet, sueldos… Regístralos una vez y repártelos entre tus productos con el botón <b>“+ Fijos”</b>.</p>
+    <div class="fijos-resumen">
+      <div>
+        <div class="fv" id="homeFijosTotal">$0.00</div>
+        <div class="ft">Total mensual</div>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div class="fv" id="homeFijosCount">0</div>
+        <div class="ft">Conceptos</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="linkrow">
+      <h2><span class="dot"></span>Productos recientes</h2>
+      <button class="linkbtn" id="btnHomeRecentAll" type="button" hidden>Ver todos
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div id="recentList"></div>
+  </section>
+
+</main>
+
+<!-- ================================================================
+     VISTA: CATÁLOGO
+     ================================================================ -->
+<main class="wrap" id="viewCatalog" hidden>
+  <div class="viewbar">
+    <button class="backbtn" id="btnBackCat" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      Inicio
+    </button>
+    <h2 class="vtitle" id="catTitle">Catálogo</h2>
+  </div>
+
+  <section class="card cat-search">
+    <input id="searchFichas" type="search" placeholder="Buscar por nombre de producto…" aria-label="Buscar productos guardados">
+    <div class="cat-tools">
+      <button class="btn soft mini" id="btnExpPdf" type="button" title="Exportar un PDF con todas las fichas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+        Catálogo PDF
+      </button>
+      <button class="btn soft mini" id="btnExpCsv" type="button" title="Exportar todas las fichas a CSV (Excel)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 4v16"/></svg>
+        Excel (CSV)
+      </button>
+      <button class="btn soft mini" id="btnExpJson" type="button" title="Descargar un respaldo que puedes importar en otro dispositivo">Respaldo</button>
+      <button class="btn soft mini" id="btnImpJson" type="button" title="Importar fichas desde un respaldo JSON">Importar</button>
+    </div>
+    <p class="hint" style="margin:9px 0 0">Todo se guarda en este navegador. Usa <b>Respaldo</b> e <b>Importar</b> para mover o conservar tu base.</p>
+  </section>
+
+  <div id="catList"></div>
+</main>
+
+<!-- ================================================================
+     VISTA: COSTOS FIJOS
+     ================================================================ -->
+<main class="wrap" id="viewFijos" hidden>
+  <div class="viewbar">
+    <button class="backbtn" id="btnBackFijos" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span id="fijosBackLbl">Inicio</span>
+    </button>
+    <h2 class="vtitle">Costos fijos</h2>
+  </div>
+
+  <section class="card">
+    <h2><span class="dot"></span>Gastos recurrentes de tu negocio</h2>
+    <p class="hint">Registra lo que pagas aunque no produzcas: renta, luz, internet, sueldos fijos, plataformas, etc. Indica el monto y cada cuánto lo pagas; la app lo convierte a mensual.</p>
+
+    <div class="fijo-add">
+      <div class="fa-concept">
+        <label class="fl" for="fijoConcepto" style="margin-top:0">Concepto</label>
+        <input id="fijoConcepto" type="text" placeholder="Ej. Renta del taller" autocomplete="off">
+      </div>
+      <div>
+        <label class="fl" for="fijoMonto" style="margin-top:0">Monto</label>
+        <div class="cost"><span>$</span><input id="fijoMonto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Monto del costo fijo"></div>
+      </div>
+      <div>
+        <label class="fl" for="fijoFreq" style="margin-top:0">Frecuencia</label>
+        <select id="fijoFreq" aria-label="Frecuencia de pago">
+          <option value="mensual" selected>Mensual</option>
+          <option value="quincenal">Quincenal</option>
+          <option value="semanal">Semanal</option>
+        </select>
+      </div>
+      <button class="addicon" id="btnAddFijo" type="button" title="Agregar costo fijo" aria-label="Agregar costo fijo" style="align-self:end">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
+    <div id="fijosGlobalList"></div>
+
+    <div class="totalbar">
+      <span class="tl">Total de costos fijos</span>
+      <span class="tv"><span id="fijosTotal">$0.00</span> <small>al mes</small></span>
+    </div>
+  </section>
+
+  <section class="card tipcard">
+    <h2><span class="dot"></span>¿Cómo se reparten?</h2>
+    <ul>
+      <li>En el formulario de un producto usa <b>“Sumar gastos fijos”</b> (sección 5).</li>
+      <li>En el catálogo, cada producto tiene su botón <b>“+ Fijos”</b>.</li>
+      <li>La app te sugiere dividir cada costo mensual entre el número de productos guardados, pero tú decides cuánto asignar a cada lote.</li>
+      <li>Lo asignado se suma al costo total del lote y al precio sugerido.</li>
+    </ul>
+  </section>
+</main>
+
+<!-- ================================================================
+     VISTA: FORMULARIO DE PRODUCTO
+     ================================================================ -->
+<main class="wrap" id="viewForm" hidden>
+  <div class="viewbar">
+    <button class="backbtn" id="btnBackForm" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span id="formBackLbl">Inicio</span>
+    </button>
+    <h2 class="vtitle" id="formTitle">Nueva ficha</h2>
+  </div>
+
+  <!-- ============ 1. DATOS GENERALES ============ -->
+  <section class="card">
+    <h2><span class="stepnum">1</span>Datos generales</h2>
     <p class="hint">Información principal del producto.</p>
 
     <label class="fl" for="producto">Producto *</label>
@@ -251,9 +513,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     <input type="text" id="tiempo" placeholder="Ej. 2 horas por lote de 10 piezas" autocomplete="off">
   </section>
 
-  <!-- ============ VARIANTES ============ -->
+  <!-- ============ 2. VARIANTES ============ -->
   <section class="card">
-    <h2><span class="dot"></span>Variantes</h2>
+    <h2><span class="stepnum">2</span>Variantes</h2>
     <p class="hint">Agrega cada variante y sus piezas. El total se calcula solo.</p>
     <div id="vlist"></div>
     <button class="addbtn" id="btnAddVar" type="button">
@@ -266,9 +528,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </section>
 
-  <!-- ============ MATERIALES ============ -->
+  <!-- ============ 3. MATERIALES ============ -->
   <section class="card">
-    <h2><span class="dot"></span>Materiales</h2>
+    <h2><span class="stepnum">3</span>Materiales</h2>
     <p class="hint">Indica la cantidad de material que usarás para todo el lote y el costo por unidad de medida. El importe de cada renglón se calcula automáticamente.</p>
     <div id="mlist"></div>
     <button class="addbtn" id="btnAddMat" type="button">
@@ -281,9 +543,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </section>
 
-  <!-- ============ MANO DE OBRA Y GASTOS ============ -->
+  <!-- ============ 4. MANO DE OBRA Y GASTOS ============ -->
   <section class="card">
-    <h2><span class="dot"></span>Mano de obra y gastos</h2>
+    <h2><span class="stepnum">4</span>Mano de obra y gastos</h2>
     <p class="hint">Captura estos importes para el lote completo, no por pieza. La mano de obra se calcula con horas × costo por hora.</p>
 
     <div class="formgrid">
@@ -314,14 +576,31 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </section>
 
-  <!-- ============ RESUMEN DE COSTOS ============ -->
+  <!-- ============ 5. COSTOS FIJOS ASIGNADOS ============ -->
   <section class="card">
-    <h2><span class="dot"></span>Resumen de costos y precio</h2>
+    <h2><span class="stepnum">5</span>Costos fijos asignados</h2>
+    <p class="hint">Reparte entre este producto una parte de tus gastos recurrentes (renta, luz, internet…). Usa el botón para traer tus costos fijos registrados: la app sugiere dividir cada costo mensual entre tus productos guardados.</p>
+    <div id="flist"></div>
+    <button class="addbtn" id="btnAllocFijos" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Sumar gastos fijos
+    </button>
+    <button class="addbtn soft" id="btnAddFijoManual" type="button">Agregar un costo fijo manualmente</button>
+    <div class="totalbar">
+      <span class="tl">Total de costos fijos asignados</span>
+      <span class="tv" id="costoFijos">$0.00</span>
+    </div>
+  </section>
+
+  <!-- ============ 6. RESUMEN ============ -->
+  <section class="card">
+    <h2><span class="stepnum">6</span>Resumen de costos y precio</h2>
     <p class="hint">El costo por pieza divide el costo total del lote entre sus piezas. El precio sugerido usa el margen objetivo y no incluye impuestos.</p>
     <div class="cost-summary">
       <div class="sum-item"><span>Materiales · lote</span><strong id="resMateriales">$0.00</strong></div>
       <div class="sum-item"><span>Mano de obra · lote</span><strong id="resManoObra">$0.00</strong></div>
       <div class="sum-item"><span>Gastos extra · lote</span><strong id="resExtras">$0.00</strong></div>
+      <div class="sum-item"><span>Costos fijos · lote</span><strong id="resFijos">$0.00</strong></div>
       <div class="sum-item primary"><span>Costo total · lote</span><strong id="resTotal">$0.00</strong></div>
       <div class="sum-item"><span>Costo por pieza</span><strong id="resUnitario">—</strong></div>
     </div>
@@ -337,17 +616,19 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </section>
 
-  <!-- ============ NOTAS ============ -->
+  <!-- ============ 7. NOTAS ============ -->
   <section class="card">
-    <h2><span class="dot"></span>Notas <small style="font-weight:600;color:var(--mut)">(opcional)</small></h2>
+    <h2><span class="stepnum">7</span>Notas <small style="font-weight:600;color:var(--mut)">(opcional)</small></h2>
     <label class="fl" for="notas" style="margin-top:2px">Notas</label>
     <textarea id="notas" placeholder="Ej. El precio incluye IVA. Entrega estimada: 5 días hábiles."></textarea>
   </section>
 
 </main>
 
-<div class="actions">
+<!-- ============ Barra de acciones (solo formulario) ============ -->
+<div class="actions" id="actionsBar" hidden>
   <div class="inner">
+    <div class="actioninfo">Costo por pieza: <b id="barUnit">—</b> &nbsp;·&nbsp; Precio sugerido: <b id="barPrice">—</b></div>
     <button class="btn ghost" id="btnNueva" type="button">Nueva</button>
     <button class="btn soft" id="btnGuardar" type="button">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
@@ -383,34 +664,39 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   </div>
 </div>
 
-<!-- ============ Modal: mis fichas ============ -->
-<div class="overlay" id="fOverlay">
-  <div class="sheet listas" role="dialog" aria-modal="true" aria-label="Mis fichas guardadas">
+<!-- ============ Modal: sumar gastos fijos ============ -->
+<div class="overlay" id="allocOverlay">
+  <div class="sheet auto" role="dialog" aria-modal="true" aria-label="Sumar gastos fijos al producto">
     <div class="shead">
-      <div class="st" id="fTitle">Mis fichas</div>
-      <button class="btn soft mini" id="btnExpJson" type="button" title="Descargar un respaldo que puedes importar en otro dispositivo">
-        Respaldo
-      </button>
-      <button class="btn soft mini" id="btnImpJson" type="button" title="Importar fichas desde un respaldo JSON">
-        Importar
-      </button>
-      <button class="btn soft mini" id="btnExpCsv" type="button" title="Exportar todas las fichas a CSV (Excel)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 4v16"/></svg>
-        Excel (CSV)
-      </button>
-      <button class="btn soft mini" id="btnExpPdf" type="button" title="Exportar un PDF con todas las fichas">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
-        Catálogo PDF
-      </button>
-      <button class="x" id="fClose" type="button" aria-label="Cerrar">
+      <div class="st" id="allocTitle">Sumar gastos fijos</div>
+      <button class="x" id="allocClose" type="button" aria-label="Cerrar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
-    <div class="fsearch">
-      <input id="searchFichas" type="search" placeholder="Buscar por nombre de producto…" aria-label="Buscar productos guardados">
-      <p class="hint" style="margin:7px 0 0">Se guardan en este navegador y no se sincronizan solos. Usa <b>Respaldo</b> e <b>Importar</b> para mover o conservar tu base.</p>
+    <p class="hint alloc-sub" id="allocSub"></p>
+    <div class="alloc-body" id="allocBody"></div>
+    <div class="alloc-foot">
+      <button class="btn ghost" id="allocAdmin" type="button">Administrar fijos</button>
+      <button class="btn primary" id="allocApply" type="button">Aplicar al producto</button>
     </div>
-    <div class="flist" id="fList"></div>
+  </div>
+</div>
+
+<!-- ============ Modal: borrador en curso ============ -->
+<div class="overlay" id="choiceOverlay">
+  <div class="sheet choice auto" role="dialog" aria-modal="true" aria-label="Borrador en curso">
+    <div class="shead">
+      <div class="st">Borrador en curso</div>
+      <button class="x" id="choiceClose" type="button" aria-label="Cerrar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="choice-body">
+      <p id="choiceDesc"></p>
+      <button class="btn primary" id="choiceContinue" type="button">Continuar con el borrador</button>
+      <button class="btn soft" id="choiceNew" type="button">Empezar una ficha nueva</button>
+      <button class="btn ghost" id="choiceCancel" type="button" style="flex:1">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -483,7 +769,7 @@ function fmtMoney(n){
 var PDFC={W:612,H:792,M:46,
   ACCENT:[0.314,0.275,0.898],
   DARK:[0.13,0.16,0.22],MUT:[0.39,0.45,0.53],SOFT:[0.60,0.65,0.72],
-  LIGHT:[0.945,0.955,0.975],LINE:[0.84,0.87,0.91],GREEN:[0.05,0.50,0.32]};
+  LIGHT:[0.945,0.955,0.975],LINE:[0.84,0.87,0.91],GREEN:[0.05,0.50,0.32],ORANGE:[0.76,0.36,0.05]};
 
 function PdfDoc(){this.pages=[];this.runName='';this.addPage();}
 PdfDoc.prototype.addPage=function(){this.pages.push([]);this.y=PDFC.H-PDFC.M;};
@@ -670,6 +956,10 @@ function drawCostSummary(doc,d){
   if(extras.length){
     for(var x=0;x<extras.length;x++)rows.push(['Gasto: '+(extras[x].n||'Adicional'),fmtMoney(extras[x].c||0)]);
   }else rows.push(['Gastos adicionales',fmtMoney(d.gastosCosto||0)]);
+  var fijos=Array.isArray(d.fijos)?d.fijos:[];
+  for(var fi=0;fi<fijos.length;fi++){
+    rows.push(['Costo fijo: '+(fijos[fi].n||'Asignado'),fmtMoney(fijos[fi].c||0)]);
+  }
   for(var r=0;r<rows.length;r++){
     var labelLines=wrapText(rows[r][0],9.5,false,CW-125);
     var rowH=Math.max(20,labelLines.length*12+7);
@@ -824,8 +1114,8 @@ if(typeof module!=='undefined'&&module.exports)module.exports={buildPdfBytes:bui
 (function(){
 'use strict';
 var $=function(s){return document.querySelector(s)};
-var KEY='fichaProducto.v1',FKEY='fichaProducto.fichas.v1',PROV='fichaProveedores.v1',radioSeq=0;
-var currentId=null;
+var KEY='fichaProducto.v1',FKEY='fichaProducto.fichas.v1',GFIJOS='fichaProducto.fijos.v1',PROV='fichaProveedores.v1',radioSeq=0;
+var currentId=null,curView='home',formReturnTo='home',fijosReturnTo='home',allocCtx=null;
 
 /* localStorage seguro (si el entorno lo bloquea, se usa memoria) */
 var store={mem:{},
@@ -837,8 +1127,20 @@ var store={mem:{},
 var TRASH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2"/><path d="M6.5 7l1 12a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1-12"/><path d="M10 11v6M14 11v6"/></svg>';
 var CHECK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg>';
 var EYE='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+var PLUS='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+var EMPTYBOX='<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>';
 
 function frag(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild;}
+
+/* ---------- Navegación entre vistas ---------- */
+var VIEWS=['viewHome','viewCatalog','viewFijos','viewForm'];
+function showView(v){
+  curView=v;
+  VIEWS.forEach(function(id){document.getElementById(id).hidden=(id!==v);});
+  document.body.classList.toggle('in-form',v==='viewForm');
+  $('#actionsBar').hidden=(v!=='viewForm');
+  window.scrollTo(0,0);
+}
 
 /* ---------- Filas ---------- */
 function addVariant(data){
@@ -904,6 +1206,18 @@ function addExtra(data){
   $('#elist').appendChild(row);
 }
 
+function addFijoRow(data){
+  data=data||{};
+  var row=frag('<div class="xrow">'
+    +'<input class="f-concept" type="text" aria-label="Concepto del costo fijo asignado" placeholder="Costo fijo (ej. Renta, luz)" autocomplete="off">'
+    +'<div class="cost" title="Monto asignado a este lote"><span>$</span><input class="f-costo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Monto del costo fijo"></div>'
+    +'<button class="del" type="button" title="Eliminar costo fijo" aria-label="Eliminar costo fijo">'+TRASH+'</button>'
+    +'</div>');
+  row.querySelector('.f-concept').value=data.n||'';
+  row.querySelector('.f-costo').value=data.c==null?'':data.c;
+  $('#flist').appendChild(row);
+}
+
 /* ---------- Datos ---------- */
 function numberValue(value){
   var n=parseFloat(value);
@@ -929,13 +1243,16 @@ function collect(){
   var gastos=Array.prototype.map.call(document.querySelectorAll('#elist .xrow'),function(r){
     return {n:r.querySelector('.x-concept').value.trim(),c:roundMoney(numberValue(r.querySelector('.x-costo').value))};
   });
+  var fijos=Array.prototype.map.call(document.querySelectorAll('#flist .xrow'),function(r){
+    return {n:r.querySelector('.f-concept').value.trim(),c:roundMoney(numberValue(r.querySelector('.f-costo').value))};
+  });
   var tipo=document.querySelector('input[name="tipo"]:checked');
   var marginValue=$('#margen').value;
   return {producto:$('#producto').value.trim(),
           tipo:tipo?tipo.value:'individual',
           tiempo:$('#tiempo').value.trim(),
           notas:$('#notas').value.trim(),
-          variantes:variantes,materiales:materiales,gastos:gastos,
+          variantes:variantes,materiales:materiales,gastos:gastos,fijos:fijos,
           horas:numberValue($('#horas').value),
           tarifa:numberValue($('#tarifa').value),
           margen:marginValue===''?null:Math.max(0,Math.min(95,parseFloat(marginValue)||0))};
@@ -961,20 +1278,24 @@ function cleanedData(d){
   var extras=(Array.isArray(d.gastos)?d.gastos:[]).map(function(x){
     x=x||{};return {n:String(x.n||'').trim(),c:roundMoney(numberValue(x.c))};
   }).filter(function(x){return x.n||x.c>0;});
+  var fijos=(Array.isArray(d.fijos)?d.fijos:[]).map(function(x){
+    x=x||{};return {n:String(x.n||'').trim(),c:roundMoney(numberValue(x.c))};
+  }).filter(function(x){return x.n||x.c>0;});
   var total=vs.reduce(function(a,v){return a+v.p;},0);
   var materialsCost=roundMoney(ms.reduce(function(a,m){return a+m.c;},0));
   var hours=numberValue(d.horas),rate=roundMoney(numberValue(d.tarifa));
   var laborCost=roundMoney(hours*rate);
   var extrasCost=roundMoney(extras.reduce(function(a,x){return a+x.c;},0));
-  var totalCost=roundMoney(materialsCost+laborCost+extrasCost);
+  var fijosCost=roundMoney(fijos.reduce(function(a,x){return a+x.c;},0));
+  var totalCost=roundMoney(materialsCost+laborCost+extrasCost+fijosCost);
   var unitCost=total>0?roundMoney(totalCost/total):0;
   var margin=(d.margen===null||d.margen===undefined||d.margen==='')?null:Math.max(0,Math.min(95,parseFloat(d.margen)||0));
   var suggested=margin===null||total===0?null:roundMoney(unitCost/(1-margin/100));
   var profit=suggested===null?null:roundMoney(suggested-unitCost);
   return {producto:String(d.producto||'').trim(),tipo:d.tipo||'individual',tiempo:String(d.tiempo||'').trim(),notas:String(d.notas||'').trim(),
-    variantes:vs,materiales:ms,gastos:extras,total:total,costo:materialsCost,
+    variantes:vs,materiales:ms,gastos:extras,fijos:fijos,total:total,costo:materialsCost,
     materialesCosto:materialsCost,horas:hours,tarifa:rate,manoObra:laborCost,gastosCosto:extrasCost,
-    costoTotal:totalCost,costoUnitario:unitCost,margen:margin,precioSugerido:suggested,gananciaUnitaria:profit};
+    costosFijosCosto:fijosCost,costoTotal:totalCost,costoUnitario:unitCost,margen:margin,precioSugerido:suggested,gananciaUnitaria:profit};
 }
 
 function totalPiezas(){
@@ -998,15 +1319,165 @@ function updateCostSummary(){
   var d=cleanedData(collect());
   $('#costoManoObra').textContent=fmtMoney(d.manoObra);
   $('#costoExtras').textContent=fmtMoney(d.gastosCosto);
+  $('#costoFijos').textContent=fmtMoney(d.costosFijosCosto);
   $('#resMateriales').textContent=fmtMoney(d.materialesCosto);
   $('#resManoObra').textContent=fmtMoney(d.manoObra);
   $('#resExtras').textContent=fmtMoney(d.gastosCosto);
+  $('#resFijos').textContent=fmtMoney(d.costosFijosCosto);
   $('#resTotal').textContent=fmtMoney(d.costoTotal);
   $('#resUnitario').textContent=d.total?fmtMoney(d.costoUnitario):'—';
   $('#precioSugerido').textContent=d.total&&d.precioSugerido!==null?fmtMoney(d.precioSugerido):'—';
   $('#gananciaUnit').textContent=d.total&&d.gananciaUnitaria!==null?fmtMoney(d.gananciaUnitaria):'—';
+  $('#barUnit').textContent=d.total?fmtMoney(d.costoUnitario):'—';
+  $('#barPrice').textContent=d.total&&d.precioSugerido!==null?fmtMoney(d.precioSugerido):'—';
 }
 function updateTotals(){updateTotal();updateCosto();updateCostSummary();}
+function updateFormTitle(){
+  var name=$('#producto').value.trim();
+  $('#formTitle').textContent=name||'Nueva ficha';
+}
+
+/* ---------- Costos fijos globales ---------- */
+function getGlobalFijos(){var a=store.get(GFIJOS,[]);return Array.isArray(a)?a:[];}
+function setGlobalFijos(a){store.set(GFIJOS,a);}
+function fijoMonthly(g){
+  var c=numberValue(g&&g.c);
+  if(!g)return 0;
+  if(g.f==='quincenal')return roundMoney(c*2);
+  if(g.f==='semanal')return roundMoney(c*4.33);
+  return roundMoney(c);
+}
+function fijosMonthlyTotal(){
+  return roundMoney(getGlobalFijos().reduce(function(a,g){return a+fijoMonthly(g);},0));
+}
+var FREQ_LABEL={mensual:'al mes',quincenal:'por quincena',semanal:'por semana'};
+
+function renderGlobalFijos(){
+  var box=$('#fijosGlobalList');box.innerHTML='';
+  var list=getGlobalFijos();
+  if(!list.length){
+    box.innerHTML='<div class="fempty" style="padding:26px 12px;margin-bottom:8px">'+EMPTYBOX
+      +'<div>Aún no registras costos fijos.</div>'
+      +'<div style="margin-top:4px">Agrega el primero aquí arriba (ej. renta, luz, internet).</div></div>';
+  }
+  list.forEach(function(g){
+    var row=frag('<div class="fijo-row">'
+      +'<div class="fijo-info"><div class="fijo-name"></div><div class="fijo-detail"></div></div>'
+      +'<div class="fijo-month"><small>equivale a</small><span></span></div>'
+      +'<button class="del" type="button" title="Eliminar costo fijo" aria-label="Eliminar costo fijo">'+TRASH+'</button>'
+      +'</div>');
+    row.querySelector('.fijo-name').textContent=g.n||'Sin nombre';
+    row.querySelector('.fijo-detail').textContent=fmtMoney(numberValue(g.c))+' '+(FREQ_LABEL[g.f]||'al mes');
+    row.querySelector('.fijo-month span').textContent=fmtMoney(fijoMonthly(g))+'/mes';
+    var del=row.querySelector('.del');
+    del.addEventListener('click',function(){
+      if(!del.classList.contains('armed')){
+        del.classList.add('armed');del.textContent='¿Seguro?';
+        setTimeout(function(){if(del.isConnected){del.classList.remove('armed');del.innerHTML=TRASH;}},3000);
+        return;
+      }
+      setGlobalFijos(getGlobalFijos().filter(function(x){return x.id!==g.id;}));
+      renderGlobalFijos();refreshHome();
+      toast('Costo fijo eliminado');
+    });
+    box.appendChild(row);
+  });
+  $('#fijosTotal').textContent=fmtMoney(fijosMonthlyTotal());
+}
+
+function addGlobalFijo(){
+  var n=$('#fijoConcepto').value.trim();
+  var c=numberValue($('#fijoMonto').value);
+  var f=$('#fijoFreq').value;
+  if(!n||!c){toast('Escribe el concepto y el monto del costo fijo','err');return;}
+  var list=getGlobalFijos();
+  list.push({id:'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:n,c:roundMoney(c),f:f});
+  setGlobalFijos(list);
+  $('#fijoConcepto').value='';$('#fijoMonto').value='';$('#fijoFreq').value='mensual';
+  renderGlobalFijos();refreshHome();
+  toast('Costo fijo agregado ✓');
+  $('#fijoConcepto').focus();
+}
+
+/* ---------- Asignación de gastos fijos a un producto ---------- */
+function findFijoRow(list,name){
+  for(var i=0;i<list.length;i++){if(list[i].n===name)return list[i];}
+  return null;
+}
+function mergeFijos(base,alloc){
+  var out=(base||[]).filter(function(r){
+    return !alloc.some(function(a){return a.n===r.n;});
+  });
+  alloc.forEach(function(a){if(a.c>0)out.push({n:a.n,c:a.c});});
+  return out;
+}
+function productFijosForCtx(){
+  if(allocCtx.mode==='draft')return collect().fijos;
+  return cleanedData((allocCtx.ficha&&allocCtx.ficha.data)||{}).fijos;
+}
+function openAlloc(mode,ficha){
+  allocCtx={mode:mode,ficha:ficha||null};
+  var pname=mode==='draft'?($('#producto').value.trim()||'este producto'):(((ficha&&ficha.data)||{}).producto||'este producto');
+  $('#allocTitle').textContent='Sumar gastos fijos';
+  $('#allocSub').textContent='¿Cuánto de cada costo fijo mensual corresponde a “'+pname+'”? Te sugerimos dividir cada costo entre tus '+Math.max(1,getFichas().length)+' producto'+(getFichas().length!==1?'s':'')+' guardado'+(getFichas().length!==1?'s':'')+', pero puedes ajustarlo.';
+  var body=$('#allocBody');body.innerHTML='';
+  var globals=getGlobalFijos();
+  $('#allocApply').disabled=!globals.length;
+  if(!globals.length){
+    body.innerHTML='<div class="fempty">'+EMPTYBOX
+      +'<div>Aún no has registrado costos fijos.</div>'
+      +'<div style="margin-top:4px">Regístralos con <b>“Administrar fijos”</b> y vuelve aquí para repartirlos.</div></div>';
+  }else{
+    var prod=productFijosForCtx();
+    var nProds=Math.max(1,getFichas().length);
+    globals.forEach(function(g){
+      var monthly=fijoMonthly(g);
+      var existing=findFijoRow(prod,g.n);
+      var suggest=roundMoney(monthly/nProds);
+      var val=existing?existing.c:suggest;
+      var row=frag('<div class="alloc-row">'
+        +'<div class="alloc-top"><span class="alloc-name"></span><span class="alloc-month"></span></div>'
+        +'<div class="cost alloc-input"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Monto a asignar"></div>'
+        +'</div>');
+      row.querySelector('.alloc-name').textContent=g.n||'Sin nombre';
+      row.querySelector('.alloc-month').textContent=fmtMoney(monthly)+' /mes · sugerido '+fmtMoney(suggest);
+      var inp=row.querySelector('input');
+      inp.value=val>0?val:'';
+      row._fijoName=g.n||'Sin nombre';
+      body.appendChild(row);
+    });
+  }
+  $('#allocOverlay').classList.add('open');
+}
+function closeAlloc(){$('#allocOverlay').classList.remove('open');allocCtx=null;}
+function applyAlloc(){
+  if(!allocCtx)return;
+  var alloc=[];
+  document.querySelectorAll('#allocBody .alloc-row').forEach(function(row){
+    var c=roundMoney(numberValue(row.querySelector('input').value));
+    alloc.push({n:row._fijoName,c:c});
+  });
+  if(allocCtx.mode==='draft'){
+    var base=collect().fijos;
+    var merged=mergeFijos(base,alloc);
+    $('#flist').innerHTML='';
+    merged.forEach(addFijoRow);
+    updateCostSummary();save();
+    toast('Costos fijos aplicados al borrador ✓');
+  }else{
+    var f=allocCtx.ficha;
+    var d=cleanedData(f.data||{});
+    d.fijos=mergeFijos(d.fijos,alloc);
+    var clean=cleanedData(d);
+    f.data=clean;f.act=new Date().toISOString();
+    var fichas=getFichas();
+    for(var i=0;i<fichas.length;i++){if(fichas[i].id===f.id){fichas[i]=f;break;}}
+    setFichas(fichas);
+    renderCatalog();refreshHome();
+    toast('Costos fijos sumados a “'+clean.producto+'” ✓');
+  }
+  closeAlloc();
+}
 
 /* ---------- Proveedores (autocompletado) ---------- */
 function updateProvDatalist(){
@@ -1030,6 +1501,7 @@ function save(){
   saveT=setTimeout(function(){
     store.set(KEY,{d:collect(),fid:currentId});
     updateProvDatalist();
+    updateFormTitle();
   },400);
 }
 
@@ -1049,10 +1521,13 @@ function setFichas(a){var persisted=store.set(FKEY,a);updateCount();return persi
 function updateCount(){
   var count=getFichas().length;
   $('#hdrCount').textContent=String(count);
-  $('#fTitle').textContent='Mis fichas ('+count+')';
+  $('#catTitle').textContent='Catálogo ('+count+')';
+  $('#chipCount').textContent=String(count);
+  $('#catDesc').textContent=count?('Tienes '+count+' producto'+(count!==1?'s':'')+' guardado'+(count!==1?'s':'')+'. Consulta, edita y exporta.'):'Consulta, edita y exporta tus productos guardados.';
 }
 function fmtFecha(iso){return new Date(iso).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});}
 function fmtHora(iso){return new Date(iso).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+var TIPO_LABELS={individual:'Individual',combo:'Combo',preventa:'Preventa'};
 
 function saveFicha(){
   var d=collect();
@@ -1076,13 +1551,12 @@ function saveFicha(){
   clearTimeout(saveT);
   var persisted=setFichas(fichas);
   store.set(KEY,{d:d,fid:currentId});
+  updateFormTitle();refreshHome();
   if(persisted)toast(idx>=0?'Ficha actualizada ✓':'Ficha guardada ✓');
   else toast('No se pudo guardar de forma permanente; solo estará en esta sesión','err');
 }
 
-function loadFicha(f){
-  var d=f.data||{};
-  currentId=f.id;
+function fillForm(d){
   $('#producto').value=d.producto||'';
   $('#tiempo').value=d.tiempo||'';
   $('#notas').value=d.notas||'';
@@ -1091,58 +1565,67 @@ function loadFicha(f){
   $('#margen').value=d.margen===null||d.margen===undefined?'':d.margen;
   var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
   if(tr)tr.checked=true;
-  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';$('#flist').innerHTML='';
   (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
   (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
   (d.gastos||[]).forEach(function(x){addExtra(x)});
+  (d.fijos||[]).forEach(function(x){addFijoRow(x)});
   updateTotals();
   updateProvDatalist();
-  store.set(KEY,{d:collect(),fid:currentId});
-  closeFichas();
-  window.scrollTo(0,0);
-  toast('Ficha cargada: '+d.producto);
+  updateFormTitle();
 }
 
-function deleteFicha(id,btn){
+function loadFicha(f,from){
+  var d=f.data||{};
+  currentId=f.id;
+  fillForm(d);
+  formReturnTo=(from==='catalog')?'catalog':'home';
+  $('#formBackLbl').textContent=formReturnTo==='catalog'?'Catálogo':'Inicio';
+  store.set(KEY,{d:collect(),fid:currentId});
+  showView('viewForm');
+  toast('Ficha cargada: '+(d.producto||'Sin nombre'));
+}
+
+function deleteFicha(id){
   var fichas=getFichas().filter(function(f){return f.id!==id});
   setFichas(fichas);
   if(currentId===id)currentId=null;
-  renderFichasList();
+  renderCatalog();refreshHome();
   toast('Ficha eliminada');
 }
 
-/* ---------- Lista de fichas ---------- */
-function renderFichasList(){
-  var box=$('#fList');
-  box.innerHTML='';
+/* ---------- Catálogo ---------- */
+function renderCatalog(){
   var all=getFichas();
+  updateCount();
+  var box=$('#catList');box.innerHTML='';
   var query=$('#searchFichas').value.trim().toLocaleLowerCase();
   var fichas=all.filter(function(f){return !query||String((f.data||{}).producto||'').toLocaleLowerCase().indexOf(query)>=0;});
   if(!fichas.length){
     var message=all.length?'No hay productos que coincidan con la búsqueda.':'Aún no hay fichas guardadas.';
-    var helper=all.length?'Prueba con otro nombre.':'Captura una ficha y toca <b>Guardar</b>.';
-    box.innerHTML='<div class="fempty">'
-      +'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>'
-      +'<div>'+message+'</div>'
-      +'<div style="margin-top:4px">'+helper+'</div></div>';
+    var helper=all.length?'Prueba con otro nombre.':'Crea una con <b>Agregar producto</b> en el inicio.';
+    box.innerHTML='<div class="fempty">'+EMPTYBOX+'<div>'+message+'</div><div style="margin-top:4px">'+helper+'</div></div>';
     return;
   }
-  var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
   fichas.forEach(function(f){
     var d=cleanedData(f.data||{});
-    var meta=(fmtFecha(f.fecha)||'')+' · '+(tipoLabels[d.tipo]||'Individual')
+    var meta=(fmtFecha(f.fecha)||'')+' · '+(TIPO_LABELS[d.tipo]||'Individual')
       +' · '+d.total+' piezas · '+fmtMoney(d.costoTotal)+' total'
-      +(d.costoUnitario>0?' · '+fmtMoney(d.costoUnitario)+'/pieza':'');
+      +(d.costoUnitario>0?' · '+fmtMoney(d.costoUnitario)+'/pieza':'')
+      +(d.precioSugerido!=null?' · venta '+fmtMoney(d.precioSugerido):'')
+      +(d.costosFijosCosto>0?' · incluye '+fmtMoney(d.costosFijosCosto)+' de fijos':'');
     var item=frag('<div class="fitem">'
       +'<div class="finfo"><div class="fname"></div><div class="fmeta"></div></div>'
       +'<div class="facts">'
       +'<button class="fbt act-abrir" type="button">Abrir</button>'
-      +'<button class="fbt alt act-pdf" type="button">'+EYE+' PDF</button>'
+      +'<button class="fbt fijos act-fijos" type="button" title="Sumar gastos fijos a este producto">'+PLUS+' Fijos</button>'
+      +'<button class="fbt alt act-pdf" type="button" title="Descargar PDF de esta ficha">'+EYE+' PDF</button>'
       +'<button class="fdel act-del" type="button" title="Eliminar ficha" aria-label="Eliminar ficha">'+TRASH+'</button>'
       +'</div></div>');
     item.querySelector('.fname').textContent=d.producto||'Sin nombre';
     item.querySelector('.fmeta').textContent=meta;
-    item.querySelector('.act-abrir').addEventListener('click',function(){loadFicha(f)});
+    item.querySelector('.act-abrir').addEventListener('click',function(){loadFicha(f,'catalog')});
+    item.querySelector('.act-fijos').addEventListener('click',function(){openAlloc('saved',f)});
     item.querySelector('.act-pdf').addEventListener('click',function(){
       var dt=new Date(f.fecha);
       var data=Object.assign({},cleanedData(d),{fecha:fmtFecha(f.fecha),hora:fmtHora(f.fecha)});
@@ -1161,13 +1644,96 @@ function renderFichasList(){
         },3000);
         return;
       }
-      deleteFicha(f.id,delBtn);
+      deleteFicha(f.id);
     });
     box.appendChild(item);
   });
 }
-function openFichas(){renderFichasList();updateCount();$('#fOverlay').classList.add('open');}
-function closeFichas(){$('#fOverlay').classList.remove('open');}
+
+/* ---------- Inicio ---------- */
+function refreshHome(){
+  var fichas=getFichas();
+  updateCount();
+  $('#chipFijos').textContent=fmtMoney(fijosMonthlyTotal());
+  $('#homeFijosTotal').textContent=fmtMoney(fijosMonthlyTotal());
+  $('#homeFijosCount').textContent=String(getGlobalFijos().length);
+  var lastWrap=$('#chipLastWrap');
+  if(fichas.length){
+    lastWrap.hidden=false;
+    $('#chipLast').textContent=(fichas[0].data||{}).producto||'Sin nombre';
+  }else lastWrap.hidden=true;
+
+  /* borrador en curso */
+  var raw=store.get(KEY,null);
+  var draft=raw&&raw.d?raw.d:null;
+  var hasDraft=false;
+  if(draft){
+    var dc=cleanedData(draft);
+    hasDraft=!!(dc.producto||dc.materiales.length||dc.gastos.length||dc.fijos.length||dc.horas>0||dc.tarifa>0||dc.total>0);
+    if(hasDraft)$('#draftName').textContent=dc.producto||'Ficha sin nombre';
+  }
+  $('#cardDraft').hidden=!hasDraft;
+
+  /* recientes */
+  var rbox=$('#recentList');rbox.innerHTML='';
+  var recent=fichas.slice(0,3);
+  $('#btnHomeRecentAll').hidden=fichas.length<=3;
+  if(!recent.length){
+    rbox.innerHTML='<p class="hint" style="margin:6px 0 2px">Todavía no guardas productos. Crea el primero con <b>Agregar producto</b>.</p>';
+    return;
+  }
+  recent.forEach(function(f){
+    var d=cleanedData(f.data||{});
+    var item=frag('<div class="ritem">'
+      +'<div class="rinfo"><div class="rname"></div><div class="rmeta"></div></div>'
+      +'<button class="fbt" type="button">Abrir</button>'
+      +'</div>');
+    item.querySelector('.rname').textContent=d.producto||'Sin nombre';
+    item.querySelector('.rmeta').textContent=(TIPO_LABELS[d.tipo]||'Individual')+' · '+d.total+' piezas'
+      +' · costo '+fmtMoney(d.costoTotal)
+      +(d.precioSugerido!=null?' · venta '+fmtMoney(d.precioSugerido):'');
+    item.querySelector('button').addEventListener('click',function(){loadFicha(f,'home')});
+    rbox.appendChild(item);
+  });
+}
+
+/* ---------- Borrador: tiene contenido? ---------- */
+function formHasContent(){
+  var d=cleanedData(collect());
+  return !!(d.producto||d.materiales.length||d.gastos.length||d.fijos.length||d.horas>0||d.tarifa>0||d.total>0);
+}
+function hardReset(){
+  clearTimeout(saveT);
+  store.del(KEY);
+  currentId=null;
+  $('#producto').value='';$('#tiempo').value='';$('#notas').value='';
+  $('#horas').value='';$('#tarifa').value='';$('#margen').value='';
+  document.querySelector('input[name="tipo"][value="individual"]').checked=true;
+  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';$('#flist').innerHTML='';
+  addVariant();addMaterial();
+  updateTotals();
+  updateFormTitle();
+}
+function openChoice(){
+  var d=cleanedData(collect());
+  $('#choiceDesc').innerHTML='';
+  var p=document.createElement('span');
+  p.appendChild(document.createTextNode('Ya tienes una ficha en progreso'));
+  var b=document.createElement('b');
+  b.textContent=d.producto?(' “'+d.producto+'”'):' sin nombre';
+  p.appendChild(b);
+  p.appendChild(document.createTextNode('. ¿Qué quieres hacer?'));
+  $('#choiceDesc').appendChild(p);
+  $('#choiceOverlay').classList.add('open');
+}
+function closeChoice(){$('#choiceOverlay').classList.remove('open');}
+function startNewFlow(){
+  if(formHasContent()){openChoice();return;}
+  hardReset();
+  formReturnTo='home';$('#formBackLbl').textContent='Inicio';
+  showView('viewForm');
+  $('#producto').focus();
+}
 
 /* ---------- Descargas ---------- */
 function slug(s){
@@ -1247,8 +1813,7 @@ function csvCell(v){
 function exportCsv(){
   var fichas=getFichas();
   if(!fichas.length){toast('Aún no hay fichas guardadas','err');return;}
-  var rows=[['Producto','Tipo','Tiempo estimado','Piezas del lote','Costo materiales (lote)','Mano de obra (lote)','Gastos adicionales (lote)','Costo total (lote)','Costo por pieza','Margen objetivo (%)','Precio sugerido por pieza','Variantes','Detalle de materiales','Gastos','Proveedores','Notas','Fecha guardada']];
-  var tipoLabels={individual:'Individual',combo:'Combo',preventa:'Preventa'};
+  var rows=[['Producto','Tipo','Tiempo estimado','Piezas del lote','Costo materiales (lote)','Mano de obra (lote)','Gastos adicionales (lote)','Costos fijos (lote)','Costo total (lote)','Costo por pieza','Margen objetivo (%)','Precio sugerido por pieza','Variantes','Detalle de materiales','Gastos','Costos fijos asignados','Proveedores','Notas','Fecha guardada']];
   fichas.forEach(function(f){
     var d=cleanedData(f.data||{});
     var variantes=d.variantes.map(function(v){return (v.n||'Sin nombre')+': '+v.p}).join('; ');
@@ -1258,13 +1823,14 @@ function exportCsv(){
         +(m.pr?'; '+m.pr:'')+']';
     }).join('; ');
     var gastos=d.gastos.map(function(x){return (x.n||'Gasto')+': '+fmtMoney(x.c)}).join('; ');
+    var fijosTxt=d.fijos.map(function(x){return (x.n||'Costo fijo')+': '+fmtMoney(x.c)}).join('; ');
     var provs=[];
     d.materiales.forEach(function(m){if(m.pr&&provs.indexOf(m.pr)<0)provs.push(m.pr)});
-    rows.push([d.producto,tipoLabels[d.tipo]||'Individual',d.tiempo,d.total,
+    rows.push([d.producto,TIPO_LABELS[d.tipo]||'Individual',d.tiempo,d.total,
       d.materialesCosto.toFixed(2),d.manoObra.toFixed(2),d.gastosCosto.toFixed(2),
-      d.costoTotal.toFixed(2),d.total?d.costoUnitario.toFixed(2):'',
+      d.costosFijosCosto.toFixed(2),d.costoTotal.toFixed(2),d.total?d.costoUnitario.toFixed(2):'',
       d.margen==null?'':d.margen,d.precioSugerido==null?'':d.precioSugerido.toFixed(2),
-      variantes,materiales,gastos,provs.join('; '),d.notas,
+      variantes,materiales,gastos,fijosTxt,provs.join('; '),d.notas,
       fmtFecha(f.fecha)+' '+fmtHora(f.fecha)]);
   });
   var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n');
@@ -1277,7 +1843,7 @@ function exportBackup(){
   var fichas=getFichas();
   if(!fichas.length){toast('Aún no hay fichas para respaldar','err');return;}
   var now=new Date();
-  var backup={app:'Ficha de Producto',version:2,exportado:now.toISOString(),fichas:fichas};
+  var backup={app:'Ficha de Producto',version:2,exportado:now.toISOString(),fichas:fichas,costosFijos:getGlobalFijos()};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json;charset=utf-8'});
   downloadBlob(blob,'respaldo-productos-'+now.toISOString().slice(0,10)+'.json');
   toast('Respaldo JSON descargado ✓');
@@ -1307,8 +1873,15 @@ function importBackupFile(file){
       });
       fichas.sort(function(a,b){return new Date(b.fecha||0)-new Date(a.fecha||0)});
       if(!added&&!updated)throw new Error('El respaldo no contiene productos válidos');
+      /* costos fijos globales incluidos en el respaldo */
+      var gf=Array.isArray(parsed.costosFijos)?parsed.costosFijos:null;
+      if(gf&&gf.length&&!getGlobalFijos().length){
+        setGlobalFijos(gf.filter(function(g){return g&&g.n;}).map(function(g){
+          return {id:g.id||('g'+Math.random().toString(36).slice(2,8)),n:String(g.n),c:roundMoney(numberValue(g.c)),f:g.f==='quincenal'||g.f==='semanal'?g.f:'mensual'};
+        }));
+      }
       var persisted=setFichas(fichas);
-      renderFichasList();
+      renderCatalog();refreshHome();
       if(persisted)toast('Importadas '+added+' y actualizadas '+updated+' ficha'+(added+updated!==1?'s':'')+' ✓');
       else toast('Se importaron en esta sesión, pero no se pudieron guardar localmente','err');
     }catch(err){
@@ -1344,25 +1917,51 @@ btnNueva.addEventListener('click',function(){
     return;
   }
   disarm();
-  clearTimeout(saveT);
-  store.del(KEY);
-  currentId=null;
-  $('#producto').value='';$('#tiempo').value='';$('#notas').value='';
-  $('#horas').value='';$('#tarifa').value='';$('#margen').value='';
-  document.querySelector('input[name="tipo"][value="individual"]').checked=true;
-  $('#vlist').innerHTML='';$('#mlist').innerHTML='';$('#elist').innerHTML='';
-  addVariant();addMaterial();
-  updateTotals();
+  hardReset();
+  refreshHome();
   toast('Nueva ficha lista');
 });
 
 /* ---------- Eventos ---------- */
+/* Home */
+$('#btnHomeAdd').addEventListener('click',startNewFlow);
+$('#btnHomeCatalog').addEventListener('click',function(){renderCatalog();showView('viewCatalog');});
+$('#btnHomeFijos').addEventListener('click',function(){fijosReturnTo='home';$('#fijosBackLbl').textContent='Inicio';renderGlobalFijos();showView('viewFijos');});
+$('#btnHomeRecentAll').addEventListener('click',function(){renderCatalog();showView('viewCatalog');});
+$('#btnDraftGo').addEventListener('click',function(){
+  formReturnTo='home';$('#formBackLbl').textContent='Inicio';
+  showView('viewForm');
+});
+
+/* Catálogo */
+$('#btnBackCat').addEventListener('click',function(){refreshHome();showView('viewHome');});
+$('#searchFichas').addEventListener('input',renderCatalog);
+$('#btnExpPdf').addEventListener('click',exportAllPdf);
+$('#btnExpCsv').addEventListener('click',exportCsv);
+$('#btnExpJson').addEventListener('click',exportBackup);
+$('#btnImpJson').addEventListener('click',function(){$('#importBackup').click();});
+$('#importBackup').addEventListener('change',function(){importBackupFile(this.files&&this.files[0]);});
+
+/* Costos fijos globales */
+$('#btnBackFijos').addEventListener('click',function(){
+  if(fijosReturnTo==='viewForm'){showView('viewForm');}
+  else if(fijosReturnTo==='viewCatalog'){renderCatalog();showView('viewCatalog');}
+  else{refreshHome();showView('viewHome');}
+});
+$('#btnAddFijo').addEventListener('click',addGlobalFijo);
+$('#fijoConcepto').addEventListener('keydown',function(e){if(e.key==='Enter')addGlobalFijo();});
+$('#fijoMonto').addEventListener('keydown',function(e){if(e.key==='Enter')addGlobalFijo();});
+
+/* Formulario: filas dinámicas */
 $('#btnAddVar').addEventListener('click',function(){addVariant();save();
   var rows=document.querySelectorAll('.v-nombre');if(rows.length)rows[rows.length-1].focus();});
 $('#btnAddMat').addEventListener('click',function(){addMaterial();save();
   var rows=document.querySelectorAll('.m-nombre');if(rows.length)rows[rows.length-1].focus();});
 $('#btnAddExtra').addEventListener('click',function(){addExtra();save();
   var rows=document.querySelectorAll('.x-concept');if(rows.length)rows[rows.length-1].focus();});
+$('#btnAllocFijos').addEventListener('click',function(){openAlloc('draft',null);});
+$('#btnAddFijoManual').addEventListener('click',function(){addFijoRow();save();
+  var rows=document.querySelectorAll('#flist .f-concept');if(rows.length)rows[rows.length-1].focus();});
 
 $('#vlist').addEventListener('input',function(){updateTotal();updateCostSummary();save();});
 $('#vlist').addEventListener('click',function(e){
@@ -1379,7 +1978,12 @@ $('#elist').addEventListener('click',function(e){
   var b=e.target.closest('.del');
   if(b){b.closest('.xrow').remove();updateCostSummary();save();}
 });
-$('#producto').addEventListener('input',save);
+$('#flist').addEventListener('input',function(){updateCostSummary();save();});
+$('#flist').addEventListener('click',function(e){
+  var b=e.target.closest('.del');
+  if(b){b.closest('.xrow').remove();updateCostSummary();save();}
+});
+$('#producto').addEventListener('input',function(){updateFormTitle();save();});
 $('#tiempo').addEventListener('input',save);
 $('#notas').addEventListener('input',save);
 $('#horas').addEventListener('input',function(){updateCostSummary();save();});
@@ -1387,6 +1991,11 @@ $('#tarifa').addEventListener('input',function(){updateCostSummary();save();});
 $('#margen').addEventListener('input',function(){updateCostSummary();save();});
 document.querySelectorAll('input[name="tipo"]').forEach(function(r){r.addEventListener('change',save)});
 
+$('#btnBackForm').addEventListener('click',function(){
+  refreshHome();
+  if(formReturnTo==='catalog'){renderCatalog();showView('viewCatalog');}
+  else showView('viewHome');
+});
 $('#btnGuardar').addEventListener('click',saveFicha);
 $('#btnPdf').addEventListener('click',downloadPdf);
 $('#btnVer').addEventListener('click',function(){
@@ -1396,19 +2005,45 @@ $('#btnVer').addEventListener('click',function(){
 });
 $('#mClose').addEventListener('click',closeModal);
 $('#overlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
-$('#btnFichas').addEventListener('click',openFichas);
-$('#fClose').addEventListener('click',closeFichas);
-$('#fOverlay').addEventListener('click',function(e){if(e.target===this)closeFichas()});
-$('#btnExpPdf').addEventListener('click',exportAllPdf);
-$('#btnExpCsv').addEventListener('click',exportCsv);
-$('#btnExpJson').addEventListener('click',exportBackup);
-$('#btnImpJson').addEventListener('click',function(){$('#importBackup').click();});
-$('#importBackup').addEventListener('change',function(){importBackupFile(this.files&&this.files[0]);});
-$('#searchFichas').addEventListener('input',renderFichasList);
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){closeModal();closeFichas();}
-});
 $('#mDl').addEventListener('click',function(){toast('PDF generado ✓')});
+
+/* Header */
+$('#btnFichas').addEventListener('click',function(){renderCatalog();showView('viewCatalog');});
+
+/* Asignación de fijos */
+$('#allocClose').addEventListener('click',closeAlloc);
+$('#allocOverlay').addEventListener('click',function(e){if(e.target===this)closeAlloc();});
+$('#allocApply').addEventListener('click',applyAlloc);
+$('#allocAdmin').addEventListener('click',function(){
+  var target=allocCtx?(allocCtx.mode==='draft'?'viewForm':'viewCatalog'):'home';
+  closeAlloc();
+  fijosReturnTo=target;
+  $('#fijosBackLbl').textContent=target==='viewForm'?'Ficha':(target==='viewCatalog'?'Catálogo':'Inicio');
+  renderGlobalFijos();
+  showView('viewFijos');
+});
+
+/* Elección de borrador */
+$('#choiceContinue').addEventListener('click',function(){
+  closeChoice();
+  formReturnTo='home';$('#formBackLbl').textContent='Inicio';
+  showView('viewForm');
+});
+$('#choiceNew').addEventListener('click',function(){
+  closeChoice();
+  hardReset();
+  formReturnTo='home';$('#formBackLbl').textContent='Inicio';
+  showView('viewForm');
+  $('#producto').focus();
+  refreshHome();
+});
+$('#choiceCancel').addEventListener('click',closeChoice);
+$('#choiceClose').addEventListener('click',closeChoice);
+$('#choiceOverlay').addEventListener('click',function(e){if(e.target===this)closeChoice();});
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeModal();closeAlloc();closeChoice();}
+});
 
 /* ---------- PWA ---------- */
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
@@ -1434,24 +2069,13 @@ bi.addEventListener('click',function(){
     if(raw&&raw.d){d=raw.d;currentId=raw.fid||null;}
     else{d=raw;currentId=null;} /* borrador de versión anterior */
   }
-  if(d){
-    $('#producto').value=d.producto||'';
-    $('#tiempo').value=d.tiempo||'';
-    $('#notas').value=d.notas||'';
-    $('#horas').value=d.horas||'';
-    $('#tarifa').value=d.tarifa||'';
-    $('#margen').value=d.margen===null||d.margen===undefined?'':d.margen;
-    var tr=document.querySelector('input[name="tipo"][value="'+(d.tipo||'individual')+'"]');
-    if(tr)tr.checked=true;
-    (d.variantes&&d.variantes.length?d.variantes:[{}]).forEach(function(v){addVariant(v)});
-    (d.materiales&&d.materiales.length?d.materiales:[{}]).forEach(function(m){addMaterial(m)});
-    (d.gastos||[]).forEach(function(x){addExtra(x)});
-  }else{
-    addVariant();addMaterial();
-  }
+  if(d){fillForm(d);}
+  else{addVariant();addMaterial();}
   updateTotals();
   updateProvDatalist();
-  updateCount();
+  renderGlobalFijos();
+  refreshHome();
+  showView('viewHome');
 })();
 })();
 /*__APP__*/
